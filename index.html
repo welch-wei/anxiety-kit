@@ -905,9 +905,6 @@ localStorage.removeItem('anxiety_records'); localStorage.removeItem('anxiety_pro
 toast('数据已重置'); setTimeout(() => location.reload(), 1000);
 }
 }
-document.addEventListener('DOMContentLoaded', init);
-
-
 // Alipay QR + redeem code logic
 function showAlipay() {
   const panel = document.getElementById('qrPanel');
@@ -941,6 +938,10 @@ function activatePro(source) {
   loadPlan();
   updateLockedCards();
 }
+
+document.addEventListener('DOMContentLoaded', init);
+
+
 </script>
 </body>
 </html>
