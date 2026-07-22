@@ -952,5 +952,15 @@ document.addEventListener('DOMContentLoaded', init);
 
 
 </script>
+<script>
+// 简易访问统计：先记录到本地，等接入 Umami/百度统计后替换
+(function() {
+  const key = 'anxietyKitVisits';
+  const visits = parseInt(localStorage.getItem(key) || '0') + 1;
+  localStorage.setItem(key, visits.toString());
+  // TODO: 替换为真实 analytics endpoint
+})();
+</script>
+
 </body>
 </html>
