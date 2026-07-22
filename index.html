@@ -538,8 +538,10 @@ const handlers = {
 
 document.querySelectorAll('[data-action]').forEach(el => {
   const action = el.dataset.action;
+  console.log('binding action', action, 'has handler?', !!handlers[action]);
   if (!handlers[action]) return;
   el.addEventListener('click', e => {
+    console.log('clicked action', action);
     if (action === 'resetData' || action === 'exportJSON') e.preventDefault();
     handlers[action](el, e);
   });
@@ -907,7 +909,9 @@ toast('数据已重置'); setTimeout(() => location.reload(), 1000);
 }
 // Alipay QR + redeem code logic
 function showAlipay() {
+  console.log('showAlipay called');
   const panel = document.getElementById('qrPanel');
+  console.log('panel', panel);
   if (!panel) return;
   panel.classList.remove('hidden');
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
