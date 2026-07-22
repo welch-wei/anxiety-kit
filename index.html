@@ -8,8 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="https://js.stripe.com/v3/"></script>
-<style>
+  <style>
 :root {
 --primary: #0ea5e9;
 --primary-light: #38bdf8;
@@ -169,6 +168,22 @@ textarea:focus { outline: none; border-color: var(--primary-light); }
 .price-box { width: 100%; }
 }
 </style>
+
+.pay-section { margin-top: 18px; }
+.qr-panel { background: var(--surface-solid); border-radius: 16px; padding: 18px; margin-top: 16px; text-align: center; border: 1px solid rgba(14,165,233,0.2); }
+.qr-title { font-size: 0.95rem; color: var(--text); font-weight: 700; margin-bottom: 12px; }
+.qr-box { position: relative; display: inline-block; max-width: 240px; border-radius: 12px; overflow: hidden; background: white; padding: 8px; }
+.qr-img { width: 100%; max-width: 220px; display: block; border-radius: 8px; }
+.qr-fallback { display: none; padding: 20px; font-size: 0.8rem; color: var(--text-secondary); }
+.qr-tip { margin-top: 12px; font-size: 1.1rem; color: var(--primary-light); font-weight: 700; }
+.qr-sub { margin-top: 6px; font-size: 0.8rem; color: var(--text-secondary); }
+.redeem-panel { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--card-border); }
+.redeem-title { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px; }
+.redeem-input { width: 100%; padding: 14px; margin-bottom: 12px; background: var(--surface); border: 1px solid var(--card-border); border-radius: 12px; font-size: 1rem; color: var(--text); text-align: center; letter-spacing: 2px; font-family: inherit; }
+.redeem-input:focus { outline: none; border-color: var(--primary-light); }
+.redeem-help { margin-top: 10px; font-size: 0.75rem; color: var(--text-tertiary); }
+.redeem-help strong { color: var(--primary-light); }
+.paywall .btn-secondary { margin-top: 0; }
 </head>
 <body>
 <div class="container">
@@ -250,18 +265,25 @@ textarea:focus { outline: none; border-color: var(--primary-light); }
 <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 导出 PDF 给医生/咨询师</li>
 <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 无广告，隐私锁</li>
 </ul>
-<button class="btn btn-gold" data-action="upgrade">立即升级 Pro</button>
-<p style="margin-top:14px; font-size:0.75rem; color:var(--text-tertiary);">
-        <span id="trialHint">支付需对接 Stripe，当前为演示占位</span><br>
-        国内用户可扫码付款后联系开通
-      </p>
-      <div id="qrPay" style="margin-top:16px; display:none;">
-        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">截图后用微信/支付宝扫码支付，备注「焦虑急救箱」</p>
-        <div style="background:var(--surface-solid); border-radius:12px; padding:16px; text-align:center; color:var(--text-tertiary);">
-          [放置你的微信/支付宝收款码]
-        </div>
-      </div>
-      <button class="btn btn-secondary" onclick="this.closest('.paywall').querySelector('#qrPay').style.display='block'" style="margin-top:12px;">国内扫码支付</button>
+
+<div class="pay-section" id="paySection">
+  <button class="btn btn-gold" data-action="showAlipay">支付宝扫码升级</button>
+  <div class="qr-panel hidden" id="qrPanel">
+    <p class="qr-title">截图后打开支付宝扫一扫</p>
+    <div class="qr-box">
+      <img src="assets/alipay-qr.jpg" alt="支付宝收款码" class="qr-img" id="qrImg">
+      <div class="qr-fallback">若二维码未显示，请截图后联系客服</div>
+    </div>
+    <p class="qr-tip">¥<span id="qrPrice">9.9</span> <span id="qrPlan">月卡</span></p>
+    <p class="qr-sub">支付备注请填写：<strong id="payMemo">焦虑急救箱</strong></p>
+  </div>
+  <div class="redeem-panel" id="redeemPanel">
+    <p class="redeem-title">已有兑换码？</p>
+    <input type="text" class="redeem-input" id="redeemInput" placeholder="输入 8 位兑换码">
+    <button class="btn btn-secondary" data-action="redeemCode">立即兑换 Pro</button>
+    <p class="redeem-help">支付成功后请加微信 <strong id="contactWechat">welch-wei</strong> 领取兑换码</p>
+  </div>
+</div>
 </div>
 
 <div class="ad-banner" id="adBanner">📢 广告位：可接入百度联盟 / Google AdSense</div>
@@ -479,57 +501,51 @@ el.classList.add('show');
 setTimeout(() => el.classList.remove('show'), 2500);
 };
 function bindActions() {
+const handlers = {
+  toggleChip: el => toggleChip(el.dataset.type, el.dataset.value),
+  markCalmedById: el => markCalmedById(parseInt(el.dataset.id)),
+  deleteRecord: el => deleteRecord(parseInt(el.dataset.id)),
+  sosToBreathing: () => { closeModal('sosModal'); openBreathing(); },
+  sosToGrounding: () => { closeModal('sosModal'); openGrounding(); },
+  sosToPMR: () => { closeModal('sosModal'); openPMR(); },
+  sosToCBT: () => { closeModal('sosModal'); openCBT(); },
+  sosToDump: () => { closeModal('sosModal'); openDump(); },
+  sosToHotlines: () => { closeModal('sosModal'); openHotlines(); },
+  showPaywall: showPaywall,
+  openSOS: openSOS,
+  openBreathing: openBreathing,
+  openGrounding: openGrounding,
+  openCBT: openCBT,
+  openDump: openDump,
+  openPMR: openPMR,
+  openSleep: openSleep,
+  openPrevention: openPrevention,
+  openHotlines: openHotlines,
+  saveRecord: saveRecord,
+  startBreathing: startBreathing,
+  stopBreathing: stopBreathing,
+  startPMR: startPMR,
+  selectPlan: el => selectPlan(el),
+  upgrade: upgrade,
+  exportPDF: exportPDF,
+  toggleCheck: el => toggleCheck(el),
+  resetData: e => { e.preventDefault(); resetData(); },
+  exportJSON: e => { e.preventDefault(); exportJSON(); },
+  showAlipay: showAlipay,
+  redeemCode: redeemCode,
+  saveCrisisPlan: saveCrisisPlan
+};
+
 document.querySelectorAll('[data-action]').forEach(el => {
   const action = el.dataset.action;
+  if (!handlers[action]) return;
   el.addEventListener('click', e => {
-    if (action === 'toggleChip') { toggleChip(el.dataset.type, el.dataset.value); return; }
-    if (action === 'markCalmedById') { markCalmedById(parseInt(el.dataset.id)); return; }
-    if (action === 'deleteRecord') { deleteRecord(parseInt(el.dataset.id)); return; }
-    if (action === 'sosToBreathing') { closeModal('sosModal'); openBreathing(); }
-    else if (action === 'sosToGrounding') { closeModal('sosModal'); openGrounding(); }
-    else if (action === 'sosToPMR') { closeModal('sosModal'); openPMR(); }
-    else if (action === 'sosToCBT') { closeModal('sosModal'); openCBT(); }
-    else if (action === 'sosToDump') { closeModal('sosModal'); openDump(); }
-    else if (action === 'sosToHotlines') { closeModal('sosModal'); openHotlines(); }
-    else if (action === 'showPaywall') showPaywall();
-    else if (action === 'openSOS') openSOS();
-    else if (action === 'openBreathing') openBreathing();
-    else if (action === 'openGrounding') openGrounding();
-    else if (action === 'openCBT') openCBT();
-    else if (action === 'openDump') openDump();
-    else if (action === 'openPMR') openPMR();
-    else if (action === 'openSleep') openSleep();
-    else if (action === 'openPrevention') openPrevention();
-    else if (action === 'openHotlines') openHotlines();
-    else if (action === 'saveRecord') saveRecord();
-    else if (action === 'updateIntensity') updateIntensity();
-    else if (action === 'selectPlan') { document.querySelectorAll('.price-box').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); selectedPlan = el.dataset.plan; }
-    else if (action === 'upgrade') upgrade();
-    else if (action === 'switchChart') switchChart(el.dataset.type, el);
-    else if (action === 'markCalmed') markCalmed(el.dataset.tool);
-    else if (action === 'saveCBT') saveCBT();
-    else if (action === 'emptyDump') emptyDump();
-    else if (action === 'saveDump') saveDump();
-    else if (action === 'startBreathing') startBreathing();
-    else if (action === 'closeBreathing') { stopBreathing(); closeModal('breathingModal'); }
-    else if (action === 'closeSOS') closeModal('sosModal');
-    else if (action === 'closeGrounding') closeModal('groundingModal');
-    else if (action === 'closeCBT') closeModal('cbtModal');
-    else if (action === 'closeDump') closeModal('dumpModal');
-    else if (action === 'closePMR') { stopPMR(); closeModal('pmrModal'); }
-    else if (action === 'closeSleep') closeModal('sleepModal');
-    else if (action === 'closePrevention') closeModal('preventionModal');
-    else if (action === 'closeHotlines') closeModal('hotlineModal');
-    else if (action === 'closePanicText') closeModal('panicTextModal');
-    else if (action === 'panicToBreathing') { closeModal('panicTextModal'); openBreathing(); }
-    else if (action === 'startPMR') startPMR();
-    else if (action === 'startSleepBreathing') startSleepBreathing();
-    else if (action === 'toggleCheck') toggleCheck(el);
-    else if (action === 'resetData') { e.preventDefault(); resetData(); }
-    else if (action === 'exportJSON') { e.preventDefault(); exportJSON(); }
+    if (action === 'resetData' || action === 'exportJSON') e.preventDefault();
+    handlers[action](el, e);
   });
 });
 }
+
 
 function init() {
 renderSymptoms();
@@ -549,6 +565,11 @@ const elapsed = Math.floor((Date.now() - trialStart) / (86400000));
 trialDays = Math.max(0, 7 - elapsed);
 if (trialDays > 0) isPro = true;
 }
+// support paid expiry
+const proExpires = parseInt(localStorage.getItem('proExpires') || '0');
+if (proExpires && Date.now() < proExpires) {
+  isPro = true;
+}
 const badge = $('planBadge');
 badge.textContent = isPro ? 'Pro 版' : '免费版';
 badge.classList.toggle('pro', isPro);
@@ -557,7 +578,7 @@ $('paywall').classList.add('hidden');
 $('adBanner').classList.add('hidden');
 }
 const trialHint = $('trialHint');
-if (trialHint) trialHint.textContent = trialDays > 0 ? `Pro 试用还剩 ${trialDays} 天` : '支付需对接微信/Stripe，当前为演示占位';
+if (trialHint) trialHint.textContent = trialDays > 0 ? `Pro 试用还剩 ${trialDays} 天` : (isPro ? 'Pro 已激活' : '支付宝扫码，立即升级');
 }
 function updateLockedCards() {
 document.querySelectorAll('.quick-card.locked').forEach(c => {
@@ -721,10 +742,16 @@ options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { 
 });
 }
 function showPaywall() { $('paywall').scrollIntoView({ behavior: 'smooth' }); }
-function selectPlan(plan) {
-selectedPlan = plan;
+function selectPlan(el) {
+selectedPlan = el.dataset.plan;
 event.currentTarget.classList.add('selected');
 document.querySelectorAll('.price-box').forEach(b => { if (b !== event.currentTarget) b.classList.remove('selected'); });
+// 同步更新二维码价格
+if (!document.getElementById('qrPanel').classList.contains('hidden')) {
+  document.getElementById('qrPrice').textContent = selectedPlan === 'year' ? '69' : '9.9';
+  document.getElementById('qrPlan').textContent = selectedPlan === 'year' ? '年卡' : '月卡';
+  document.getElementById('payMemo').textContent = selectedPlan === 'year' ? '焦虑急救箱年卡' : '焦虑急救箱月卡';
+}
 }
 function upgrade() {
 if (!localStorage.getItem('anxiety_trial_start')) {
@@ -733,7 +760,7 @@ localStorage.setItem('anxiety_pro', '1');
 toast('已开启 7 天 Pro 试用');
 setTimeout(() => location.reload(), 1200);
 } else {
-toast(`支付开发中：${selectedPlan === 'month' ? '¥9.9/月' : '¥69/年'}`);
+showAlipay();
 }
 }
 function openModal(id) { $(id).classList.add('show'); }
@@ -879,6 +906,41 @@ toast('数据已重置'); setTimeout(() => location.reload(), 1000);
 }
 }
 document.addEventListener('DOMContentLoaded', init);
+
+
+// Alipay QR + redeem code logic
+function showAlipay() {
+  const panel = document.getElementById('qrPanel');
+  if (!panel) return;
+  panel.classList.remove('hidden');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  const selected = document.querySelector('.price-box.selected');
+  const plan = selected ? selected.dataset.plan : 'month';
+  document.getElementById('qrPrice').textContent = plan === 'year' ? '69' : '9.9';
+  document.getElementById('qrPlan').textContent = plan === 'year' ? '年卡' : '月卡';
+  document.getElementById('payMemo').textContent = plan === 'year' ? '焦虑急救箱年卡' : '焦虑急救箱月卡';
+}
+
+function redeemCode() {
+  const input = document.getElementById('redeemInput').value.trim().toUpperCase();
+  if (!input) return toast('请输入兑换码');
+  const validCodes = JSON.parse(localStorage.getItem('validProCodes') || '[]');
+  const usedCodes = JSON.parse(localStorage.getItem('usedProCodes') || '[]');
+  if (usedCodes.includes(input)) return toast('该兑换码已使用');
+  if (!validCodes.includes(input)) return toast('兑换码无效或已过期');
+  usedCodes.push(input);
+  localStorage.setItem('usedProCodes', JSON.stringify(usedCodes));
+  activatePro('兑换码');
+  toast('兑换成功，已开通 Pro');
+}
+
+function activatePro(source) {
+  const expires = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  localStorage.setItem('proExpires', expires.toString());
+  localStorage.setItem('proSource', source || 'manual');
+  loadPlan();
+  updateLockedCards();
+}
 </script>
 </body>
 </html>
