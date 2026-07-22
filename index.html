@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
 <style>
 :root {
 --primary: #0ea5e9;
@@ -250,7 +251,17 @@ textarea:focus { outline: none; border-color: var(--primary-light); }
 <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 无广告，隐私锁</li>
 </ul>
 <button class="btn btn-gold" data-action="upgrade">立即升级 Pro</button>
-<p id="trialHint" style="margin-top:14px; font-size:0.75rem; color:var(--text-tertiary);">支付需对接微信/Stripe，当前为演示占位</p>
+<p style="margin-top:14px; font-size:0.75rem; color:var(--text-tertiary);">
+        <span id="trialHint">支付需对接 Stripe，当前为演示占位</span><br>
+        国内用户可扫码付款后联系开通
+      </p>
+      <div id="qrPay" style="margin-top:16px; display:none;">
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">截图后用微信/支付宝扫码支付，备注「焦虑急救箱」</p>
+        <div style="background:var(--surface-solid); border-radius:12px; padding:16px; text-align:center; color:var(--text-tertiary);">
+          [放置你的微信/支付宝收款码]
+        </div>
+      </div>
+      <button class="btn btn-secondary" onclick="this.closest('.paywall').querySelector('#qrPay').style.display='block'" style="margin-top:12px;">国内扫码支付</button>
 </div>
 
 <div class="ad-banner" id="adBanner">📢 广告位：可接入百度联盟 / Google AdSense</div>
