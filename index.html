@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>焦虑急救箱 | 60秒，让自己回来</title>
-  <meta name="description" content="焦虑、恐慌、失眠时，一键启动科学急救工具：呼吸、接地、认知重构、情绪倾倒。本地存储，无需登录。">
+  <meta name="description" content="焦虑、恐慌、失眠时，一键启动科学急救工具：呼吸、接地、认知重构、肌肉放松、情绪倾倒。本地存储，无需登录。">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <style>
     :root {
       --primary: #0ea5e9;
@@ -15,6 +16,7 @@
       --accent: #f43f5e;
       --accent-light: #fb7185;
       --success: #34d399;
+      --warning: #fbbf24;
       --bg: #0b1120;
       --surface: rgba(255,255,255,0.07);
       --surface-solid: rgba(255,255,255,0.12);
@@ -26,105 +28,66 @@
       --radius: 24px;
       --radius-sm: 16px;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { min-height: 100%; font-family: 'Noto Sans SC', -apple-system, sans-serif; color: var(--text); line-height: 1.6; overflow-x: hidden; }
     body { background: var(--bg); position: relative; }
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background: radial-gradient(ellipse 80% 50% at 20% 40%, rgba(14,165,233,0.22), transparent 60%),
-                  radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244,63,94,0.15), transparent 55%),
-                  radial-gradient(ellipse 70% 60% at 50% 90%, rgba(52,211,153,0.1), transparent 55%),
-                  linear-gradient(180deg, #0b1120 0%, #0f172a 100%);
-      z-index: -2; pointer-events: none;
-    }
-    body::after {
-      content: ''; position: fixed; inset: 0;
-      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      opacity: 0.03; z-index: -1; pointer-events: none;
-    }
-
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 20% 40%, rgba(14,165,233,0.22), transparent 60%), radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244,63,94,0.15), transparent 55%), radial-gradient(ellipse 70% 60% at 50% 90%, rgba(52,211,153,0.1), transparent 55%), linear-gradient(180deg, #0b1120 0%, #0f172a 100%); z-index: -2; pointer-events: none; }
+    body::after { content: ''; position: fixed; inset: 0; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); opacity: 0.03; z-index: -1; pointer-events: none; }
     .container { max-width: 860px; margin: 0 auto; padding: 20px; padding-bottom: 100px; }
-
     header { text-align: center; padding: 28px 0 20px; }
     .brand { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 12px; animation: float 6s ease-in-out infinite; }
     .logo { width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 0 30px rgba(14,165,233,0.4); border: 1px solid rgba(255,255,255,0.2); }
     .brand h1 { font-size: 1.8rem; font-weight: 900; }
     .tagline { color: var(--text-secondary); font-size: 0.95rem; }
-
-    .plan-badge {
-      display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--card-border); color: var(--primary-light); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-top: 12px; transition: all 0.2s;
-    }
+    .plan-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--card-border); color: var(--primary-light); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-top: 12px; transition: all 0.2s; }
     .plan-badge:hover { background: var(--surface-solid); }
     .plan-badge.pro { color: #fbbf24; border-color: rgba(251,191,36,0.3); }
-
-    .sos-btn {
-      width: 100%; padding: 28px; background: linear-gradient(135deg, var(--accent) 0%, #be123c 100%); border: none; border-radius: var(--radius); color: white; font-size: 1.4rem; font-weight: 900; cursor: pointer; margin-bottom: 20px; box-shadow: 0 12px 40px rgba(244,63,94,0.4); transition: all 0.2s; position: relative; overflow: hidden;
-    }
+    .sos-btn { width: 100%; padding: 28px; background: linear-gradient(135deg, var(--accent) 0%, #be123c 100%); border: none; border-radius: var(--radius); color: white; font-size: 1.4rem; font-weight: 900; cursor: pointer; margin-bottom: 20px; box-shadow: 0 12px 40px rgba(244,63,94,0.4); transition: all 0.2s; position: relative; overflow: hidden; }
     .sos-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(244,63,94,0.5); }
     .sos-btn:active { transform: translateY(0); }
     .sos-btn small { display: block; font-size: 0.85rem; font-weight: 500; margin-top: 6px; opacity: 0.9; }
     .sos-btn::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%); animation: pulse 3s ease-in-out infinite; }
-
     .quick-tools { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-    .quick-card {
-      background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 18px; cursor: pointer; transition: all 0.2s; text-align: center; backdrop-filter: blur(20px);
-    }
+    .quick-card { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 18px; cursor: pointer; transition: all 0.2s; text-align: center; backdrop-filter: blur(20px); }
     .quick-card:hover { background: var(--surface-solid); transform: translateY(-3px); }
     .quick-card .emoji { font-size: 2rem; margin-bottom: 8px; }
     .quick-card .title { font-weight: 700; font-size: 0.95rem; }
     .quick-card .desc { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
-
-    .card {
-      background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; backdrop-filter: blur(20px); box-shadow: var(--shadow);
-    }
+    .quick-card.locked { opacity: 0.6; position: relative; }
+    .quick-card.locked::after { content: '👑'; position: absolute; top: 8px; right: 8px; font-size: 0.85rem; }
+    .card { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; backdrop-filter: blur(20px); box-shadow: var(--shadow); }
     .card-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
     .card-title span { font-size: 1.3rem; }
-
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
     .stat { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 16px 8px; text-align: center; }
     .stat-value { font-size: 1.5rem; font-weight: 900; color: var(--primary-light); }
     .stat-label { font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
-
     .tabs { display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
     .tab { padding: 8px 18px; border-radius: 20px; background: var(--surface); border: 1px solid var(--card-border); color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
     .tab.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-color: transparent; }
     .chart-wrap { position: relative; height: 240px; }
-
     .form-group { margin-bottom: 18px; }
     .form-label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; display: block; font-weight: 500; }
     .intensity-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; }
     .slider-track { height: 8px; border-radius: 4px; background: var(--surface-solid); position: relative; }
     input[type=range] { -webkit-appearance: none; width: 100%; height: 8px; background: transparent; position: absolute; top: 0; left: 0; cursor: pointer; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-light), var(--primary)); border: 2px solid white; box-shadow: 0 0 16px rgba(14,165,233,0.5); margin-top: -8px; }
-
     .symptom-grid, .trigger-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .chip {
-      background: var(--surface); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 6px; text-align: center; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; color: var(--text-secondary);
-    }
+    .chip { background: var(--surface); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 6px; text-align: center; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; color: var(--text-secondary); }
     .chip:hover { background: var(--surface-solid); color: var(--text); }
     .chip.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-color: transparent; }
-
-    textarea {
-      width: 100%; min-height: 100px; padding: 14px; background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); font-size: 1rem; color: var(--text); resize: vertical; font-family: inherit;
-    }
+    textarea { width: 100%; min-height: 100px; padding: 14px; background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); font-size: 1rem; color: var(--text); resize: vertical; font-family: inherit; }
     textarea::placeholder { color: var(--text-tertiary); }
     textarea:focus { outline: none; border-color: var(--primary-light); }
-
-    .btn {
-      width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 24px rgba(14,165,233,0.35);
-    }
+    .btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 24px rgba(14,165,233,0.35); }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(14,165,233,0.45); }
     .btn-secondary { background: transparent; color: var(--primary-light); border: 1px solid var(--primary-light); box-shadow: none; }
     .btn-secondary:hover { background: rgba(14,165,233,0.1); }
     .btn-gold { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #0f172a; box-shadow: 0 8px 24px rgba(251,191,36,0.35); }
     .btn-row { display: flex; gap: 10px; }
     .btn-row .btn { flex: 1; }
-
-    .paywall {
-      background: linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.9) 100%); border: 1px solid rgba(14,165,233,0.3); border-radius: var(--radius); padding: 28px; text-align: center; margin-bottom: 20px; box-shadow: var(--shadow), 0 0 60px rgba(14,165,233,0.15);
-    }
+    .btn-small { padding: 8px 14px; font-size: 0.8rem; border-radius: 10px; }
+    .paywall { background: linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.9) 100%); border: 1px solid rgba(14,165,233,0.3); border-radius: var(--radius); padding: 28px; text-align: center; margin-bottom: 20px; box-shadow: var(--shadow), 0 0 60px rgba(14,165,233,0.15); }
     .paywall h3 { font-size: 1.4rem; margin-bottom: 10px; }
     .paywall > p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
     .price-wrap { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -136,9 +99,7 @@
     .features { text-align: left; display: inline-block; margin: 16px 0; list-style: none; }
     .features li { margin-bottom: 10px; font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
     .features li svg { width: 18px; height: 18px; color: var(--success); flex-shrink: 0; }
-
     .ad-banner { background: var(--surface); border: 1px dashed var(--card-border); border-radius: var(--radius-sm); padding: 16px; text-align: center; color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 20px; }
-
     .history-list { display: flex; flex-direction: column; gap: 10px; }
     .history-item { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 14px; transition: all 0.2s; }
     .history-item:hover { background: var(--surface-solid); }
@@ -148,18 +109,16 @@
     .history-actions { display: flex; gap: 8px; margin-top: 10px; }
     .history-actions button { background: transparent; border: 1px solid var(--card-border); color: var(--text-tertiary); padding: 5px 12px; border-radius: 10px; font-size: 0.75rem; cursor: pointer; }
     .history-actions button:hover { background: rgba(255,255,255,0.1); color: var(--text); }
-
     .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
     .empty-state .emoji { font-size: 3rem; margin-bottom: 12px; }
-
     .modal-overlay { position: fixed; inset: 0; background: rgba(11,17,32,0.92); z-index: 900; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
     .modal-overlay.show { opacity: 1; pointer-events: auto; }
     .modal { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; backdrop-filter: blur(20px); }
+    .modal-wide { max-width: 640px; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .modal-header h3 { font-size: 1.2rem; }
     .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.6rem; cursor: pointer; }
     .modal-close:hover { color: var(--text); }
-
     .breath-container { text-align: center; padding: 20px 0; }
     .breath-circle { width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light)); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 900; box-shadow: 0 0 50px rgba(14,165,233,0.4); }
     .breath-circle.inhale { animation: breatheIn 4s ease-in-out forwards; }
@@ -167,33 +126,36 @@
     .breath-circle.exhale { animation: breatheExhale 8s ease-in-out forwards; }
     .breath-text { font-size: 1.1rem; color: var(--primary-light); margin-bottom: 8px; }
     .breath-sub { font-size: 0.85rem; color: var(--text-secondary); }
-
-    .grounding-list { display: flex; flex-direction: column; gap: 12px; }
-    .grounding-item { background: var(--surface-solid); border-radius: 12px; padding: 16px; }
-    .grounding-item strong { color: var(--primary-light); display: block; margin-bottom: 4px; }
-    .grounding-item p { color: var(--text-secondary); font-size: 0.9rem; }
-
+    .grounding-list, .tool-list { display: flex; flex-direction: column; gap: 12px; }
+    .grounding-item, .tool-item { background: var(--surface-solid); border-radius: 12px; padding: 16px; }
+    .grounding-item strong, .tool-item strong { color: var(--primary-light); display: block; margin-bottom: 4px; }
+    .grounding-item p, .tool-item p { color: var(--text-secondary); font-size: 0.9rem; }
     .cbt-card { background: var(--surface-solid); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
     .cbt-card h4 { color: var(--primary-light); font-size: 0.95rem; margin-bottom: 8px; }
     .cbt-card p { color: var(--text); font-size: 0.9rem; line-height: 1.7; }
     .cbt-card .input { width: 100%; padding: 10px; background: var(--surface); border: 1px solid var(--card-border); border-radius: 10px; color: var(--text); margin-top: 8px; font-family: inherit; }
-
     .tool-detail { background: var(--surface-solid); border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
     .tool-detail:hover { background: rgba(255,255,255,0.15); }
     .tool-detail h4 { color: var(--primary-light); font-size: 0.95rem; margin-bottom: 4px; }
     .tool-detail p { color: var(--text-secondary); font-size: 0.85rem; }
-
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15,23,42,0.95); color: white; padding: 14px 28px; border-radius: 30px; font-size: 0.9rem; z-index: 1100; opacity: 0; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1); }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
+    .progress-bar { height: 6px; background: var(--surface-solid); border-radius: 3px; overflow: hidden; margin: 16px 0; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: 3px; transition: width 0.5s; }
+    .step-count { font-size: 0.75rem; color: var(--text-tertiary); text-align: center; margin-bottom: 8px; }
+    .crisis-banner { background: linear-gradient(135deg, rgba(244,63,94,0.2), rgba(190,18,60,0.15)); border: 1px solid rgba(244,63,94,0.4); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px; }
+    .crisis-banner h4 { color: var(--accent-light); margin-bottom: 6px; }
+    .crisis-banner p { color: var(--text-secondary); font-size: 0.85rem; }
+    .checklist { display: flex; flex-direction: column; gap: 10px; }
+    .check-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--surface-solid); border-radius: 10px; cursor: pointer; }
+    .check-item input { width: 18px; height: 18px; accent-color: var(--primary); }
+    .check-item.checked { opacity: 0.6; text-decoration: line-through; }
     .hidden { display: none !important; }
-
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
     @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 0.3; } }
     @keyframes breatheIn { from { transform: scale(1); } to { transform: scale(1.3); box-shadow: 0 0 70px rgba(14,165,233,0.6); } }
     @keyframes breatheHold { from { transform: scale(1.3); } to { transform: scale(1.3); } }
     @keyframes breatheExhale { from { transform: scale(1.3); } to { transform: scale(1); } }
-
     @media (max-width: 600px) {
       .container { padding: 16px; padding-bottom: 80px; }
       .brand h1 { font-size: 1.5rem; }
@@ -224,26 +186,14 @@
     </button>
 
     <div class="quick-tools">
-      <div class="quick-card" onclick="openBreathing()">
-        <div class="emoji">🫁</div>
-        <div class="title">快速呼吸</div>
-        <div class="desc">4-7-8 呼吸法</div>
-      </div>
-      <div class="quick-card" onclick="openGrounding()">
-        <div class="emoji">🧊</div>
-        <div class="title">5-4-3-2-1</div>
-        <div class="desc"> grounding 接地练习</div>
-      </div>
-      <div class="quick-card" onclick="openCBT()">
-        <div class="emoji">💭</div>
-        <div class="title">认知重构</div>
-        <div class="desc">区分想法与事实</div>
-      </div>
-      <div class="quick-card" onclick="openDump()">
-        <div class="emoji">📝</div>
-        <div class="title">情绪倾倒</div>
-        <div class="desc">把想法全部倒出</div>
-      </div>
+      <div class="quick-card" onclick="openBreathing()"><div class="emoji">🫁</div><div class="title">快速呼吸</div><div class="desc">4-7-8 呼吸法</div></div>
+      <div class="quick-card" onclick="openGrounding()"><div class="emoji">🧊</div><div class="title">5-4-3-2-1</div><div class="desc"> grounding 接地练习</div></div>
+      <div class="quick-card" onclick="openCBT()"><div class="emoji">💭</div><div class="title">认知重构</div><div class="desc">区分想法与事实</div></div>
+      <div class="quick-card" onclick="openDump()"><div class="emoji">📝</div><div class="title">情绪倾倒</div><div class="desc">把想法全部倒出</div></div>
+      <div class="quick-card" onclick="openPMR()"><div class="emoji">🧘‍♂️</div><div class="title">肌肉放松</div><div class="desc">渐进式身体放松</div></div>
+      <div class="quick-card" onclick="openSleep()" id="sleepCard"><div class="emoji">🌙</div><div class="title">睡眠仪式</div><div class="desc">睡前放松练习</div></div>
+      <div class="quick-card locked" onclick="openPrevention()"><div class="emoji">🛡️</div><div class="title">预防计划</div><div class="desc">每日降低焦虑</div></div>
+      <div class="quick-card locked" onclick="showPaywall()"><div class="emoji">📊</div><div class="title">PDF 报告</div><div class="desc">给医生/咨询师</div></div>
     </div>
 
     <div class="stats-grid" id="statsGrid">
@@ -257,31 +207,21 @@
       <div class="card-title"><span>📝</span> 记录一次焦虑/恐慌</div>
       <div class="form-group">
         <span class="form-label">现在的焦虑强度是多少？</span>
-        <div class="intensity-labels">
-          <span>轻微</span>
-          <span id="intensityValue">5/10</span>
-          <span>极度恐慌</span>
-        </div>
-        <div class="slider-track">
-          <input type="range" id="intensity" min="1" max="10" value="5" oninput="updateIntensity()">
-        </div>
+        <div class="intensity-labels"><span>轻微</span><span id="intensityValue">5/10</span><span>极度恐慌</span></div>
+        <div class="slider-track"><input type="range" id="intensity" min="1" max="10" value="5" oninput="updateIntensity()"></div>
       </div>
-
       <div class="form-group">
         <span class="form-label">你出现了哪些症状？（可多选）</span>
         <div class="symptom-grid" id="symptomGrid"></div>
       </div>
-
       <div class="form-group">
         <span class="form-label">触发因素是什么？（可多选）</span>
         <div class="trigger-grid" id="triggerGrid"></div>
       </div>
-
       <div class="form-group">
         <span class="form-label">此刻你在想什么？</span>
-        <textarea id="note" placeholder="例如：我心跳很快，感觉自己要失控了，很害怕...></textarea>
+        <textarea id="note" placeholder="例如：我心跳很快，感觉自己要失控了，很害怕..."></textarea>
       </div>
-
       <div class="btn-row">
         <button class="btn" onclick="saveRecord()" style="flex:2;">记录并启动急救</button>
         <button class="btn btn-secondary" onclick="openSOS()" style="flex:1;">仅急救</button>
@@ -310,7 +250,7 @@
         <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 无广告，隐私锁</li>
       </ul>
       <button class="btn btn-gold" onclick="upgrade()">立即升级 Pro</button>
-      <p style="margin-top:14px; font-size:0.75rem; color:var(--text-tertiary);">支付需对接微信/Stripe，当前为演示占位</p>
+      <p id="trialHint" style="margin-top:14px; font-size:0.75rem; color:var(--text-tertiary);">支付需对接微信/Stripe，当前为演示占位</p>
     </div>
 
     <div class="ad-banner" id="adBanner">📢 广告位：可接入百度联盟 / Google AdSense</div>
@@ -333,7 +273,7 @@
 
     <footer>
       <p>焦虑急救箱 · 紧急情况请拨打 120 或前往医院</p>
-      <p style="margin-top:8px;"><a href="#" onclick="resetData();return false;">重置本地数据</a> · <a href="#" onclick="openHotlines();return false;">求助热线</a></p>
+      <p style="margin-top:8px;"><a href="#" onclick="resetData();return false;">重置本地数据</a> · <a href="#" onclick="openHotlines();return false;">求助热线</a> · <a href="#" onclick="exportJSON();return false;">导出数据</a></p>
     </footer>
   </div>
 
@@ -344,22 +284,12 @@
       <div class="modal-header"><h3>🆘 SOS 急救流程</h3><button class="modal-close" onclick="closeModal('sosModal')">×</button></div>
       <div id="sosBody">
         <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">选择一个最适合你此刻状态的工具：</p>
-        <div class="tool-detail" onclick="closeModal('sosModal');openBreathing();">
-          <h4>🫁 4-7-8 呼吸法</h4>
-          <p>最适合：心跳加速、呼吸急促、身体紧绷</p>
-        </div>
-        <div class="tool-detail" onclick="closeModal('sosModal');openGrounding();">
-          <h4>🧊 5-4-3-2-1 grounding</h4>
-          <p>最适合：感觉不真实、失控、要逃离</p>
-        </div>
-        <div class="tool-detail" onclick="closeModal('sosModal');openCBT();">
-          <h4>💭 认知重构</h4>
-          <p>最适合：灾难化想法、反复担忧、停不下来</p>
-        </div>
-        <div class="tool-detail" onclick="closeModal('sosModal');openDump();">
-          <h4>📝 情绪倾倒</h4>
-          <p>最适合：脑子里一团乱、想大声喊出来</p>
-        </div>
+        <div class="tool-detail" onclick="closeModal('sosModal');openBreathing();"><h4>🫁 4-7-8 呼吸法</h4><p>最适合：心跳加速、呼吸急促、身体紧绷</p></div>
+        <div class="tool-detail" onclick="closeModal('sosModal');openGrounding();"><h4>🧊 5-4-3-2-1 grounding</h4><p>最适合：感觉不真实、失控、要逃离</p></div>
+        <div class="tool-detail" onclick="closeModal('sosModal');openPMR();"><h4>🧘‍♂️ 渐进式肌肉放松</h4><p>最适合：全身紧绷、肩颈僵硬、无法入睡</p></div>
+        <div class="tool-detail" onclick="closeModal('sosModal');openCBT();"><h4>💭 认知重构</h4><p>最适合：灾难化想法、反复担忧、停不下来</p></div>
+        <div class="tool-detail" onclick="closeModal('sosModal');openDump();"><h4>📝 情绪倾倒</h4><p>最适合：脑子里一团乱、想大声喊出来</p></div>
+        <div class="tool-detail" onclick="closeModal('sosModal');openHotlines();"><h4>📞 危机热线</h4><p>如果念头控制不住，请立即联系专业帮助</p></div>
       </div>
     </div>
   </div>
@@ -381,26 +311,11 @@
       <div class="modal-header"><h3>🧊 5-4-3-2-1 grounding</h3><button class="modal-close" onclick="closeModal('groundingModal')">×</button></div>
       <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">用感官把你拉回当下。不需要全部完成，做到你能做的就好。</p>
       <div class="grounding-list">
-        <div class="grounding-item">
-          <strong>5 样你能看到的东西</strong>
-          <p>环顾四周，说出 5 个物体的名字。比如：墙、灯、桌子、手机、我的手。</p>
-        </div>
-        <div class="grounding-item">
-          <strong>4 样你能触摸到的东西</strong>
-          <p>感受衣服、桌面、手机屏幕或你的皮肤。注意它们的温度、质地。</p>
-        </div>
-        <div class="grounding-item">
-          <strong>3 样你能听到的声音</strong>
-          <p>空调声、车流声、自己的呼吸。慢慢辨认它们。</p>
-        </div>
-        <div class="grounding-item">
-          <strong>2 样你能闻到的气味</strong>
-          <p>咖啡、香水、洗手液，或者深呼吸空气本身的味道。</p>
-        </div>
-        <div class="grounding-item">
-          <strong>1 样你能尝到的味道</strong>
-          <p>喝一口水，或抿一下嘴唇。把注意力放在这个简单的味觉上。</p>
-        </div>
+        <div class="grounding-item"><strong>5 样你能看到的东西</strong><p>环顾四周，说出 5 个物体的名字。比如：墙、灯、桌子、手机、我的手。</p></div>
+        <div class="grounding-item"><strong>4 样你能触摸到的东西</strong><p>感受衣服、桌面、手机屏幕或你的皮肤。注意它们的温度、质地。</p></div>
+        <div class="grounding-item"><strong>3 样你能听到的声音</strong><p>空调声、车流声、自己的呼吸。慢慢辨认它们。</p></div>
+        <div class="grounding-item"><strong>2 样你能闻到的气味</strong><p>咖啡、香水、洗手液，或者深呼吸空气本身的味道。</p></div>
+        <div class="grounding-item"><strong>1 样你能尝到的味道</strong><p>喝一口水，或抿一下嘴唇。把注意力放在这个简单的味觉上。</p></div>
       </div>
       <button class="btn" onclick="markCalmed('grounding')" style="margin-top:16px;">我感觉好点了</button>
     </div>
@@ -410,22 +325,10 @@
     <div class="modal">
       <div class="modal-header"><h3>💭 认知重构</h3><button class="modal-close" onclick="closeModal('cbtModal')">×</button></div>
       <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">焦虑常常来自"灾难化想法"。试着把它们写下来，看看事实是什么。</p>
-      <div class="cbt-card">
-        <h4>1. 我现在最担心的想法是？</h4>
-        <input class="input" id="cbtThought" placeholder="例如：我心脏病要发作了">
-      </div>
-      <div class="cbt-card">
-        <h4>2. 这个想法发生的可能性有多大？</h4>
-        <input class="input" id="cbtProbability" placeholder="0-100%">
-      </div>
-      <div class="cbt-card">
-        <h4>3. 如果朋友有这个想法，我会对他说什么？</h4>
-        <input class="input" id="cbtAdvice" placeholder="例如：你已经检查过身体，医生说是焦虑">
-      </div>
-      <div class="cbt-card">
-        <h4>4. 更平衡的想法可能是？</h4>
-        <input class="input" id="cbtBalance" placeholder="例如：我很不舒服，但这是焦虑反应，会过去的">
-      </div>
+      <div class="cbt-card"><h4>1. 我现在最担心的想法是？</h4><input class="input" id="cbtThought" placeholder="例如：我心脏病要发作了"></div>
+      <div class="cbt-card"><h4>2. 这个想法发生的可能性有多大？</h4><input class="input" id="cbtProbability" placeholder="0-100%"></div>
+      <div class="cbt-card"><h4>3. 如果朋友有这个想法，我会对他说什么？</h4><input class="input" id="cbtAdvice" placeholder="例如：你已经检查过身体，医生说是焦虑"></div>
+      <div class="cbt-card"><h4>4. 更平衡的想法可能是？</h4><input class="input" id="cbtBalance" placeholder="例如：我很不舒服，但这是焦虑反应，会过去的"></div>
       <button class="btn" onclick="saveCBT()" style="margin-top:8px;">保存这次重构</button>
     </div>
   </div>
@@ -442,42 +345,121 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="pmrModal">
+    <div class="modal modal-wide">
+      <div class="modal-header"><h3>🧘‍♂️ 渐进式肌肉放松</h3><button class="modal-close" onclick="stopPMR();closeModal('pmrModal')">×</button></div>
+      <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">先用力绷紧某组肌肉 5 秒，然后突然放松，把注意力放在放松的感觉上。</p>
+      <div class="progress-bar"><div class="progress-fill" id="pmrProgress" style="width:0%"></div></div>
+      <div class="step-count" id="pmrStepCount">0 / 8</div>
+      <div id="pmrBody">
+        <div class="breath-container">
+          <div class="breath-circle" id="pmrCircle" style="font-size:1.1rem;">准备</div>
+          <div class="breath-text" id="pmrText">点击下方开始</div>
+          <div class="breath-sub" id="pmrSub">一次只关注一组肌肉，不用追求完美</div>
+        </div>
+      </div>
+      <button class="btn" id="pmrBtn" onclick="startPMR()">开始练习</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="sleepModal">
+    <div class="modal modal-wide">
+      <div class="modal-header"><h3>🌙 睡前仪式</h3><button class="modal-close" onclick="closeModal('sleepModal')">×</button></div>
+      <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">焦虑常在夜晚加重。用 10 分钟让身体知道：现在可以休息了。</p>
+      <div class="checklist" id="sleepChecklist">
+        <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox" onchange="event.stopPropagation()"><span>📱 把手机放到 1 米外，屏幕朝下</span></div>
+        <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox" onchange="event.stopPropagation()"><span>🌡️ 调低室温，让房间稍凉一点</span></div>
+        <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox" onchange="event.stopPropagation()"><span>🫁 做 3 轮慢呼吸（吸 4 秒，呼 6 秒）</span></div>
+        <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox" onchange="event.stopPropagation()"><span>🧘 从头到脚扫描身体，找到紧绷处并放松</span></div>
+        <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox" onchange="event.stopPropagation()"><span>📝 把明天的担忧写进「焦虑清单」，告诉自己：现在不处理</span></div>
+      </div>
+      <button class="btn" onclick="startSleepBreathing()" style="margin-top:16px;">开始睡前呼吸</button>
+      <div id="sleepBreath" class="hidden" style="margin-top:20px;text-align:center;">
+        <div class="breath-circle" id="sleepCircle" style="width:120px;height:120px;font-size:1rem;">吸气</div>
+        <div class="breath-text" id="sleepText">吸气 4 秒</div>
+        <div class="breath-sub" id="sleepSub">呼气尽量比吸气长</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="preventionModal">
+    <div class="modal modal-wide">
+      <div class="modal-header"><h3>🛡️ 每日预防计划</h3><button class="modal-close" onclick="closeModal('preventionModal')">×</button></div>
+      <div id="preventionBody">
+        <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">根据你今天的情况，选择一个当天的重点任务：</p>
+        <div class="checklist" id="preventionList">
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox" onchange="event.stopPropagation()"><span>🌞 早晨 5 分钟呼吸练习</span></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox" onchange="event.stopPropagation()"><span>☕ 减少 1 杯咖啡或浓茶</span></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox" onchange="event.stopPropagation()"><span>🚶 午间散步 10 分钟</span></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox" onchange="event.stopPropagation()"><span>🌙 睡前 30 分钟不用手机</span></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox" onchange="event.stopPropagation()"><span>📝 记录 1 件今天值得认可的小事</span></div>
+        </div>
+        <div class="crisis-banner" style="margin-top:16px;">
+          <h4>📌 Pro 进阶计划</h4>
+          <p>根据你的发作记录，预测高风险时段，提前推送提醒。升级 Pro 解锁完整计划。</p>
+        </div>
+      </div>
+      <button class="btn btn-gold" onclick="showPaywall()" style="margin-top:8px;">升级 Pro 查看个性化计划</button>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="hotlineModal">
     <div class="modal">
       <div class="modal-header"><h3>📞 求助热线</h3><button class="modal-close" onclick="closeModal('hotlineModal')">×</button></div>
-      <div class="grounding-list">
-        <div class="grounding-item">
-          <strong>全国 24 小时心理援助热线：010-82951332</strong>
-          <p>北京回龙观医院心理危机干预中心</p>
-        </div>
-        <div class="grounding-item">
-          <strong>北京心理危机研究与干预中心：010-82951332</strong>
-          <p>24 小时服务</p>
-        </div>
-        <div class="grounding-item">
-          <strong>上海心理援助热线：021-12320-5</strong>
-          <p>工作日 8:00-22:00</p>
-        </div>
-        <div class="grounding-item">
-          <strong>紧急情况请直接拨打 120 或 110</strong>
-          <p>如果出现自伤/自杀念头，请立即寻求身边人或专业帮助。</p>
-        </div>
+      <div class="crisis-banner">
+        <h4>⚠️ 如果你正在考虑伤害自己</h4>
+        <p>请立即拨打 120 或 110，或联系身边可信的人。焦虑会过去，但你不需要一个人扛。</p>
       </div>
+      <div class="grounding-list">
+        <div class="grounding-item"><strong>全国 24 小时心理援助热线：010-82951332</strong><p>北京回龙观医院心理危机干预中心</p></div>
+        <div class="grounding-item"><strong>北京心理危机研究与干预中心：010-82951332</strong><p>24 小时服务</p></div>
+        <div class="grounding-item"><strong>上海心理援助热线：021-12320-5</strong><p>工作日 8:00-22:00</p></div>
+        <div class="grounding-item"><strong>广州市心理危机干预中心：020-81899120</strong><p>24 小时服务</p></div>
+        <div class="grounding-item"><strong>深圳市心理援助热线：0755-25629459</strong><p>24 小时服务</p></div>
+        <div class="grounding-item"><strong>紧急情况请直接拨打 120 或 110</strong><p>如果出现自伤/自杀念头，请立即寻求身边人或专业帮助。</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="panicTextModal">
+    <div class="modal">
+      <div class="modal-header"><h3>🗣️ 对自己说这些话</h3><button class="modal-close" onclick="closeModal('panicTextModal')">×</button></div>
+      <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">惊恐发作时，身体正在误判危险。这些话不是鸡汤，是事实。</p>
+      <div class="tool-list">
+        <div class="tool-item"><strong>这是焦虑反应，不是危险。</strong><p>我的心跳快、呼吸急，是肾上腺素在作用，它会自己代谢掉。</p></div>
+        <div class="tool-item"><strong>我已经经历过，它过去了。</strong><p>每一次惊恐发作都结束了，这次也不会例外。</p></div>
+        <div class="tool-item"><strong>我不需要逃离，我需要待在这里。</strong><p>逃离会告诉大脑"这里很危险"，待住会让大脑重新学习。</p></div>
+        <div class="tool-item"><strong>把注意力放在呼吸上，而不是念头。</strong><p>念头不是命令，我可以看着它们，不被它们拉走。</p></div>
+        <div class="tool-item"><strong>我此刻是安全的。</strong><p>即使身体不舒服，我也没有真正危险。</p></div>
+      </div>
+      <button class="btn" onclick="closeModal('panicTextModal');openBreathing();" style="margin-top:16px;">开始呼吸练习</button>
     </div>
   </div>
 
   <script>
     const SYMPTOMS = ['心跳加速', '呼吸困难', '头晕', '出汗', '发抖', '恶心', '胸闷', '手脚发麻', '耳鸣', '不真实感', '濒死感', '失控感'];
     const TRIGGERS = ['工作压力', '人际冲突', '健康担忧', '财务问题', '睡眠不足', '咖啡因/酒精', '密闭空间', '人群/社交', '突发消息', '未来不确定'];
-
+    const PMR_STEPS = [
+      { name: '双手', tense: '握紧双拳，感受手指和手掌的紧张', relax: '慢慢松开，感受手指变暖、变重' },
+      { name: '手臂', tense: '弯曲手臂，绷紧二头肌', relax: '让手臂自然垂下，血液重新流动' },
+      { name: '肩膀', tense: '耸起肩膀，靠近耳朵', relax: '肩膀突然落下，感受颈部变长' },
+      { name: '面部', tense: '皱紧眉头、闭眼、抿嘴', relax: '放松整张脸，让额头和下巴变软' },
+      { name: '腹部', tense: '收紧腹部，像要被碰到', relax: '腹部放松，让呼吸自然进入腹部' },
+      { name: '臀部/腿部', tense: '收紧臀部，大腿用力', relax: '让腿变沉，陷进椅子或床' },
+      { name: '双脚', tense: '脚尖向上勾，绷紧小腿', relax: '脚放下，感受地面的支撑' },
+      { name: '全身', tense: '全身一起轻轻绷紧', relax: '全部呼出，像一摊泥一样沉下去' }
+    ];
     let selectedSymptoms = new Set();
     let selectedTriggers = new Set();
     let isPro = false;
+    let trialDays = 0;
     let selectedPlan = 'month';
     let chartInstance = null;
     let triggerChartInstance = null;
     let breathTimer = null;
-
+    let pmrTimer = null;
+    let pmrIndex = 0;
+    let sleepTimer = null;
     const $ = id => document.getElementById(id);
     const toast = msg => {
       const el = $('toast');
@@ -485,7 +467,6 @@
       el.classList.add('show');
       setTimeout(() => el.classList.remove('show'), 2500);
     };
-
     function init() {
       renderSymptoms();
       renderTriggers();
@@ -493,10 +474,16 @@
       loadPlan();
       loadData();
       renderTriggerChart();
+      updateLockedCards();
     }
-
     function loadPlan() {
       isPro = localStorage.getItem('anxiety_pro') === '1';
+      const trialStart = parseInt(localStorage.getItem('anxiety_trial_start') || '0');
+      if (trialStart) {
+        const elapsed = Math.floor((Date.now() - trialStart) / (86400000));
+        trialDays = Math.max(0, 7 - elapsed);
+        if (trialDays > 0) isPro = true;
+      }
       const badge = $('planBadge');
       badge.textContent = isPro ? 'Pro 版' : '免费版';
       badge.classList.toggle('pro', isPro);
@@ -504,59 +491,46 @@
         $('paywall').classList.add('hidden');
         $('adBanner').classList.add('hidden');
       }
+      const trialHint = $('trialHint');
+      if (trialHint) trialHint.textContent = trialDays > 0 ? `Pro 试用还剩 ${trialDays} 天` : '支付需对接微信/Stripe，当前为演示占位';
     }
-
-    function renderSymptoms() {
-      $('symptomGrid').innerHTML = SYMPTOMS.map(s => `
-        <div class="chip" data-type="symptom" data-value="${s}" onclick="toggleChip('symptom', '${s}')">${s}</div>
-      `).join('');
-    }
-
-    function renderTriggers() {
-      $('triggerGrid').innerHTML = TRIGGERS.map(t => `
-        <div class="chip" data-type="trigger" data-value="${t}" onclick="toggleChip('trigger', '${t}')">${t}</div>
-      `).join('');
-    }
-
-    function toggleChip(type, value) {
-      const set = type === 'symptom' ? selectedSymptoms : selectedTriggers;
-      if (set.has(value)) set.delete(value);
-      else set.add(value);
-      document.querySelectorAll(`.chip[data-type="${type}"]`).forEach(c => {
-        c.classList.toggle('active', set.has(c.dataset.value));
+    function updateLockedCards() {
+      document.querySelectorAll('.quick-card.locked').forEach(c => {
+        if (isPro) { c.classList.remove('locked'); c.querySelector('.title').style.opacity = '1'; }
       });
     }
-
-    function updateIntensity() {
-      $('intensityValue').textContent = `${$('intensity').value}/10`;
+    function renderSymptoms() {
+      $('symptomGrid').innerHTML = SYMPTOMS.map(s => `<div class="chip" data-type="symptom" data-value="${s}" onclick="toggleChip('symptom', '${s}')">${s}</div>`).join('');
     }
-
+    function renderTriggers() {
+      $('triggerGrid').innerHTML = TRIGGERS.map(t => `<div class="chip" data-type="trigger" data-value="${t}" onclick="toggleChip('trigger', '${t}')">${t}</div>`).join('');
+    }
+    function toggleChip(type, value) {
+      const set = type === 'symptom' ? selectedSymptoms : selectedTriggers;
+      if (set.has(value)) set.delete(value); else set.add(value);
+      document.querySelectorAll(`.chip[data-type="${type}"]`).forEach(c => { c.classList.toggle('active', set.has(c.dataset.value)); });
+    }
+    function updateIntensity() { $('intensityValue').textContent = `${$('intensity').value}/10`; }
     function getRecords() {
       try { return JSON.parse(localStorage.getItem('anxiety_records') || '[]'); }
       catch (e) { return []; }
     }
-
-    function saveRecords(records) {
-      localStorage.setItem('anxiety_records', JSON.stringify(records));
+    function saveRecords(records) { localStorage.setItem('anxiety_records', JSON.stringify(records)); }
+    function checkCrisis(text) {
+      if (!text) return false;
+      const crisisWords = ['自杀', '自残', '不想活', '不想活了', '结束生命', 'kill myself', '想死', '活着没意思', '死了算了'];
+      return crisisWords.some(w => text.includes(w));
     }
-
     function saveRecord() {
       const intensity = parseInt($('intensity').value);
       const note = $('note').value.trim();
-      if (!isPro && getRecords().length >= 7) {
-        showPaywall();
-        return toast('免费版最多保存 7 条记录，升级 Pro 解锁无限');
+      if (checkCrisis(note)) {
+        openHotlines();
+        toast('检测到你的文字可能涉及危机，请查看求助热线');
+        return;
       }
-      const record = {
-        id: Date.now(),
-        intensity,
-        symptoms: Array.from(selectedSymptoms),
-        triggers: Array.from(selectedTriggers),
-        note,
-        time: Date.now(),
-        tools: [],
-        calmed: false
-      };
+      if (!isPro && getRecords().length >= 7) { showPaywall(); return toast('免费版最多保存 7 条记录，升级 Pro 解锁无限'); }
+      const record = { id: Date.now(), intensity, symptoms: Array.from(selectedSymptoms), triggers: Array.from(selectedTriggers), note, time: Date.now(), tools: [], calmed: false };
       const records = getRecords();
       records.unshift(record);
       saveRecords(records);
@@ -567,7 +541,6 @@
       toast('已记录');
       openSOS();
     }
-
     function resetForm() {
       $('intensity').value = 5;
       updateIntensity();
@@ -576,7 +549,6 @@
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       $('note').value = '';
     }
-
     function updateStreak() {
       const lastDate = localStorage.getItem('anxiety_last_record');
       const today = new Date().toDateString();
@@ -591,7 +563,6 @@
       localStorage.setItem('anxiety_streak', streak);
       localStorage.setItem('anxiety_last_record', today);
     }
-
     function getStreak() {
       const lastDate = localStorage.getItem('anxiety_last_record');
       const today = new Date().toDateString();
@@ -601,7 +572,6 @@
       if (lastDate !== today && lastDate !== yesterday) return 0;
       return streak;
     }
-
     function loadData() {
       const records = getRecords();
       const visible = isPro ? records : records.slice(0, 7);
@@ -609,13 +579,9 @@
       renderHistory(visible);
       renderChart('week');
     }
-
     function renderStats(records) {
       if (!records.length) {
-        $('totalAttacks').textContent = '0';
-        $('avgIntensity').textContent = '-';
-        $('calmCount').textContent = '0';
-        $('streakDays').textContent = '0';
+        $('totalAttacks').textContent = '0'; $('avgIntensity').textContent = '-'; $('calmCount').textContent = '0'; $('streakDays').textContent = '0';
         return;
       }
       $('totalAttacks').textContent = records.length;
@@ -623,74 +589,37 @@
       $('calmCount').textContent = records.filter(r => r.calmed).length;
       $('streakDays').textContent = getStreak();
     }
-
     function renderHistory(records) {
       const list = $('historyList');
-      if (!records.length) {
-        list.innerHTML = '<div class="empty-state"><div class="emoji">📝</div><p>还没有记录</p><small>焦虑发作时记录一下，你会慢慢看见规律</small></div>';
-        return;
-      }
+      if (!records.length) { list.innerHTML = '<div class="empty-state"><div class="emoji">📝</div><p>还没有记录</p><small>焦虑发作时记录一下，你会慢慢看见规律</small></div>'; return; }
       list.innerHTML = records.slice(0, 10).map(r => {
         const date = new Date(r.time);
         const timeStr = `${date.getMonth()+1}月${date.getDate()}日 ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
         const color = r.intensity >= 7 ? '#f43f5e' : r.intensity >= 4 ? '#fbbf24' : '#34d399';
-        return `
-          <div class="history-item">
-            <div class="history-meta">
-              <span style="color:${color};font-weight:700;">强度 ${r.intensity}/10</span>
-              <span>${timeStr}</span>
-              ${r.calmed ? '<span style="color:#34d399;">✓ 已平复</span>' : ''}
-            </div>
-            <div class="history-text">${r.note ? escapeHtml(r.note) : '无文字记录'}</div>
-            ${r.symptoms.length ? `<div style="margin-top:8px;">${r.symptoms.map(s => `<span style="display:inline-block;background:rgba(255,255,255,0.08);padding:3px 8px;border-radius:10px;font-size:0.7rem;margin-right:4px;">${s}</span>`).join('')}</div>` : ''}
-            <div class="history-actions">
-              <button onclick="markCalmedById(${r.id})">标记平复</button>
-              <button onclick="deleteRecord(${r.id})">删除</button>
-            </div>
-          </div>
-        `;
+        return `<div class="history-item"><div class="history-meta"><span style="color:${color};font-weight:700;">强度 ${r.intensity}/10</span><span>${timeStr}</span>${r.calmed ? '<span style="color:#34d399;">✓ 已平复</span>' : ''}</div><div class="history-text">${r.note ? escapeHtml(r.note) : '无文字记录'}</div>${r.symptoms.length ? `<div style="margin-top:8px;">${r.symptoms.map(s => `<span style="display:inline-block;background:rgba(255,255,255,0.08);padding:3px 8px;border-radius:10px;font-size:0.7rem;margin-right:4px;">${s}</span>`).join('')}</div>` : ''}<div class="history-actions"><button onclick="markCalmedById(${r.id})">标记平复</button><button onclick="deleteRecord(${r.id})">删除</button></div></div>`;
       }).join('');
     }
-
     function markCalmedById(id) {
       const records = getRecords().map(r => r.id === id ? {...r, calmed: true} : r);
-      saveRecords(records);
-      loadData();
+      saveRecords(records); loadData();
       toast('已标记平复，做得好');
     }
-
     function deleteRecord(id) {
       if (!confirm('确定删除这条记录吗？')) return;
       const records = getRecords().filter(r => r.id !== id);
-      saveRecords(records);
-      loadData();
-      renderTriggerChart();
+      saveRecords(records); loadData(); renderTriggerChart();
       toast('已删除');
     }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
+    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
     function renderChartTabs() {
-      $('chartTabs').innerHTML = `
-        <button class="tab active" onclick="switchChart('week', this)">近7天</button>
-        <button class="tab" onclick="switchChart('month', this)">近30天</button>
-      `;
+      $('chartTabs').innerHTML = `<button class="tab active" onclick="switchChart('week', this)">近7天</button><button class="tab" onclick="switchChart('month', this)">近30天</button>`;
     }
-
     function switchChart(type, btn) {
-      if (!isPro && type === 'month') {
-        showPaywall();
-        return toast('30天趋势是 Pro 功能');
-      }
+      if (!isPro && type === 'month') { showPaywall(); return toast('30天趋势是 Pro 功能'); }
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
       renderChart(type);
     }
-
     function renderChart(type) {
       const ctx = $('anxietyChart').getContext('2d');
       const records = getRecords();
@@ -698,52 +627,26 @@
       const labels = [], data = [];
       const now = new Date();
       for (let i = days - 1; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(d.getDate() - i);
+        const d = new Date(now); d.setDate(d.getDate() - i);
         labels.push(`${d.getMonth()+1}/${d.getDate()}`);
-        const dayRecords = records.filter(r => {
-          const rd = new Date(r.time);
-          return rd.getFullYear() === d.getFullYear() && rd.getMonth() === d.getMonth() && rd.getDate() === d.getDate();
-        });
+        const dayRecords = records.filter(r => { const rd = new Date(r.time); return rd.getFullYear() === d.getFullYear() && rd.getMonth() === d.getMonth() && rd.getDate() === d.getDate(); });
         data.push(dayRecords.length ? dayRecords.reduce((s, r) => s + r.intensity, 0) / dayRecords.length : null);
       }
       if (chartInstance) chartInstance.destroy();
       chartInstance = new Chart(ctx, {
         type: 'line',
-        data: { labels, datasets: [{
-          label: '焦虑强度',
-          data,
-          borderColor: '#38bdf8',
-          backgroundColor: (ctx) => {
-            const {chart, chartArea} = ctx.chart;
-            if (!chartArea) return null;
-            const g = chart.ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            g.addColorStop(0, 'rgba(56,189,248,0.4)');
-            g.addColorStop(1, 'rgba(56,189,248,0)');
-            return g;
-          },
-          borderWidth: 3, pointRadius: 5, pointBackgroundColor: '#fff', pointBorderColor: '#38bdf8', fill: true, tension: 0.4, spanGaps: true
-        }] },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          scales: { y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.5)' } }, x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } } },
-          plugins: { legend: { display: false } }
-        }
+        data: { labels, datasets: [{ label: '焦虑强度', data, borderColor: '#38bdf8', backgroundColor: (ctx) => { const {chart, chartArea} = ctx.chart; if (!chartArea) return null; const g = chart.ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom); g.addColorStop(0, 'rgba(56,189,248,0.4)'); g.addColorStop(1, 'rgba(56,189,248,0)'); return g; }, borderWidth: 3, pointRadius: 5, pointBackgroundColor: '#fff', pointBorderColor: '#38bdf8', fill: true, tension: 0.4, spanGaps: true }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.5)' } }, x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } } }, plugins: { legend: { display: false } } }
       });
     }
-
     function renderTriggerChart() {
       const ctx = $('triggerChart').getContext('2d');
       const records = getRecords();
       const counts = {};
       records.forEach(r => r.triggers.forEach(t => counts[t] = (counts[t] || 0) + 1));
       const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 6);
-      if (!sorted.length) {
-        if (triggerChartInstance) triggerChartInstance.destroy();
-        return;
-      }
-      const labels = sorted.map(([t]) => t);
-      const data = sorted.map(([_, v]) => v);
+      if (!sorted.length) { if (triggerChartInstance) triggerChartInstance.destroy(); return; }
+      const labels = sorted.map(([t]) => t); const data = sorted.map(([_, v]) => v);
       const colors = ['#38bdf8', '#f43f5e', '#fbbf24', '#34d399', '#a78bfa', '#f472b6'];
       if (triggerChartInstance) triggerChartInstance.destroy();
       triggerChartInstance = new Chart(ctx, {
@@ -752,146 +655,164 @@
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.5)' } }, x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } } }, plugins: { legend: { display: false } } }
       });
     }
-
     function showPaywall() { $('paywall').scrollIntoView({ behavior: 'smooth' }); }
-
     function selectPlan(plan) {
       selectedPlan = plan;
       event.currentTarget.classList.add('selected');
       document.querySelectorAll('.price-box').forEach(b => { if (b !== event.currentTarget) b.classList.remove('selected'); });
     }
-
-    function upgrade() { toast(`支付开发中：${selectedPlan === 'month' ? '¥9.9/月' : '¥69/年'}`); }
-
+    function upgrade() {
+      if (!localStorage.getItem('anxiety_trial_start')) {
+        localStorage.setItem('anxiety_trial_start', Date.now());
+        localStorage.setItem('anxiety_pro', '1');
+        toast('已开启 7 天 Pro 试用');
+        setTimeout(() => location.reload(), 1200);
+      } else {
+        toast(`支付开发中：${selectedPlan === 'month' ? '¥9.9/月' : '¥69/年'}`);
+      }
+    }
     function openModal(id) { $(id).classList.add('show'); }
     function closeModal(id) { $(id).classList.remove('show'); }
-
     function openSOS() { openModal('sosModal'); }
     function openHotlines() { openModal('hotlineModal'); }
     function openGrounding() { openModal('groundingModal'); }
     function openCBT() { openModal('cbtModal'); }
     function openDump() { openModal('dumpModal'); }
-
+    function openPMR() { openModal('pmrModal'); }
+    function openSleep() { openModal('sleepModal'); }
+    function openPrevention() { openModal('preventionModal'); }
     function openBreathing() { openModal('breathingModal'); }
-
     function startBreathing() {
-      const circle = $('breathCircle');
-      const text = $('breathText');
-      const sub = $('breathSub');
-      const btn = $('breathStartBtn');
+      const circle = $('breathCircle'); const text = $('breathText'); const sub = $('breathSub'); const btn = $('breathStartBtn');
       btn.classList.add('hidden');
-      let cycles = 0;
-      const maxCycles = 3;
+      let cycles = 0; const maxCycles = 3;
       function cycle() {
-        if (cycles >= maxCycles) {
-          text.textContent = '完成';
-          sub.textContent = '你已经完成了 3 轮呼吸，感觉怎么样？';
-          btn.textContent = '再来 3 轮';
-          btn.classList.remove('hidden');
-          circle.className = 'breath-circle';
-          return;
-        }
-        text.textContent = '吸气 4 秒';
-        sub.textContent = '用鼻子慢慢吸气，腹部鼓起';
-        circle.className = 'breath-circle inhale';
-        setTimeout(() => {
-          text.textContent = '屏息 7 秒';
-          sub.textContent = '保持自然，不要憋气';
-          circle.className = 'breath-circle hold';
-          setTimeout(() => {
-            text.textContent = '呼气 8 秒';
-            sub.textContent = '用嘴巴缓慢呼气，肩膀放松';
-            circle.className = 'breath-circle exhale';
-            setTimeout(() => {
-              cycles++;
-              cycle();
-            }, 8000);
+        if (cycles >= maxCycles) { text.textContent = '完成'; sub.textContent = '你已经完成了 3 轮呼吸，感觉怎么样？'; btn.textContent = '再来 3 轮'; btn.classList.remove('hidden'); circle.className = 'breath-circle'; return; }
+        text.textContent = '吸气 4 秒'; sub.textContent = '用鼻子慢慢吸气，腹部鼓起'; circle.className = 'breath-circle inhale';
+        breathTimer = setTimeout(() => {
+          text.textContent = '屏息 7 秒'; sub.textContent = '保持自然，不要憋气'; circle.className = 'breath-circle hold';
+          breathTimer = setTimeout(() => {
+            text.textContent = '呼气 8 秒'; sub.textContent = '用嘴巴缓慢呼气，肩膀放松'; circle.className = 'breath-circle exhale';
+            breathTimer = setTimeout(() => { cycles++; cycle(); }, 8000);
           }, 7000);
         }, 4000);
       }
       cycle();
     }
-
     function stopBreathing() { clearTimeout(breathTimer); }
-
+    function startPMR() {
+      const btn = $('pmrBtn');
+      btn.classList.add('hidden');
+      pmrIndex = 0;
+      runPMRStep();
+    }
+    function runPMRStep() {
+      if (pmrIndex >= PMR_STEPS.length) { finishPMR(); return; }
+      const step = PMR_STEPS[pmrIndex];
+      const progress = ((pmrIndex + 1) / PMR_STEPS.length) * 100;
+      $('pmrProgress').style.width = `${progress}%`;
+      $('pmrStepCount').textContent = `${pmrIndex + 1} / ${PMR_STEPS.length}`;
+      $('pmrCircle').textContent = step.name;
+      $('pmrText').textContent = `绷紧：${step.tense}`;
+      $('pmrSub').textContent = '保持 5 秒';
+      pmrTimer = setTimeout(() => {
+        $('pmrText').textContent = `放松：${step.relax}`;
+        $('pmrSub').textContent = '停留 10 秒';
+        pmrTimer = setTimeout(() => { pmrIndex++; runPMRStep(); }, 10000);
+      }, 5000);
+    }
+    function finishPMR() {
+      $('pmrCircle').textContent = '完成';
+      $('pmrText').textContent = '全身已经放松';
+      $('pmrSub').textContent = '你现在感觉怎么样？';
+      $('pmrBtn').textContent = '再来一次';
+      $('pmrBtn').classList.remove('hidden');
+      markCalmed('pmr');
+    }
+    function stopPMR() { clearTimeout(pmrTimer); }
+    function toggleCheck(el) {
+      const cb = el.querySelector('input');
+      cb.checked = !cb.checked;
+      el.classList.toggle('checked', cb.checked);
+    }
+    function startSleepBreathing() {
+      $('sleepBreath').classList.remove('hidden');
+      const circle = $('sleepCircle'); const text = $('sleepText'); const sub = $('sleepSub');
+      let cycles = 0;
+      function cycle() {
+        if (cycles >= 5) { text.textContent = '完成'; sub.textContent = '慢慢睁开眼睛，祝你好眠'; circle.className = 'breath-circle'; return; }
+        text.textContent = '吸气 4 秒'; sub.textContent = '慢慢吸气'; circle.className = 'breath-circle inhale';
+        sleepTimer = setTimeout(() => {
+          text.textContent = '呼气 6 秒'; sub.textContent = '更慢地呼气'; circle.className = 'breath-circle exhale';
+          sleepTimer = setTimeout(() => { cycles++; cycle(); }, 6000);
+        }, 4000);
+      }
+      cycle();
+    }
     function markCalmed(tool) {
       const records = getRecords();
-      if (records.length > 0) {
-        records[0].calmed = true;
-        if (tool) records[0].tools.push(tool);
-        saveRecords(records);
-        loadData();
-      }
+      if (records.length > 0) { records[0].calmed = true; if (tool) records[0].tools.push(tool); saveRecords(records); loadData(); }
       toast('标记平复成功，你很棒');
       closeModal('groundingModal');
     }
-
     function saveCBT() {
       const thought = $('cbtThought').value.trim();
       const probability = $('cbtProbability').value.trim();
       const advice = $('cbtAdvice').value.trim();
       const balance = $('cbtBalance').value.trim();
       if (!thought) return toast('请至少写下最担心的想法');
+      if (checkCrisis(thought)) { openHotlines(); toast('检测到你的想法可能涉及危机，请查看求助热线'); return; }
       const records = getRecords();
-      if (records.length > 0) {
-        records[0].tools.push('cbt');
-        records[0].cbt = { thought, probability, advice, balance };
-        saveRecords(records);
-      }
-      $('cbtThought').value = '';
-      $('cbtProbability').value = '';
-      $('cbtAdvice').value = '';
-      $('cbtBalance').value = '';
-      toast('认知重构已保存');
-      closeModal('cbtModal');
+      if (records.length > 0) { records[0].tools.push('cbt'); records[0].cbt = { thought, probability, advice, balance }; saveRecords(records); }
+      $('cbtThought').value = ''; $('cbtProbability').value = ''; $('cbtAdvice').value = ''; $('cbtBalance').value = '';
+      toast('认知重构已保存'); closeModal('cbtModal');
     }
-
-    function emptyDump() {
-      $('dumpText').value = '';
-      toast('已经倒空了');
-      closeModal('dumpModal');
-    }
-
+    function emptyDump() { $('dumpText').value = ''; toast('已经倒空了'); closeModal('dumpModal'); }
     function saveDump() {
       const text = $('dumpText').value.trim();
       if (!text) return toast('还没有内容');
+      if (checkCrisis(text)) { openHotlines(); toast('检测到你的文字可能涉及危机，请查看求助热线'); return; }
       if (!isPro && getRecords().length >= 7) { showPaywall(); return toast('免费版记录上限 7 条'); }
       const record = { id: Date.now(), intensity: 5, symptoms: [], triggers: [], note: text, time: Date.now(), tools: ['dump'], calmed: true };
-      const records = getRecords();
-      records.unshift(record);
-      saveRecords(records);
-      $('dumpText').value = '';
-      loadData();
-      renderTriggerChart();
-      toast('情绪倾倒已保存');
-      closeModal('dumpModal');
+      const records = getRecords(); records.unshift(record); saveRecords(records); $('dumpText').value = ''; loadData(); renderTriggerChart();
+      toast('情绪倾倒已保存'); closeModal('dumpModal');
     }
-
-    function exportData() {
-      if (!isPro) { showPaywall(); return toast('导出数据是 Pro 功能'); }
+    function exportPDF() {
+      if (!isPro) { showPaywall(); return toast('导出 PDF 是 Pro 功能'); }
+      const records = getRecords();
+      if (!records.length) return toast('没有数据');
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(18); doc.text('焦虑急救箱 - 发作报告', 14, 20);
+      doc.setFontSize(12); doc.text(`生成时间：${new Date().toLocaleString('zh-CN')}`, 14, 30);
+      doc.text(`累计发作：${records.length} 次 | 平均强度：${(records.reduce((s,r)=>s+r.intensity,0)/records.length).toFixed(1)}/10`, 14, 40);
+      let y = 55;
+      records.slice(0, 20).forEach(r => {
+        const date = new Date(r.time).toLocaleString('zh-CN');
+        doc.text(`${date}  | 强度 ${r.intensity}/10`, 14, y); y += 7;
+        if (r.symptoms.length) { doc.text(`症状：${r.symptoms.join('、')}`, 14, y); y += 7; }
+        if (r.triggers.length) { doc.text(`诱因：${r.triggers.join('、')}`, 14, y); y += 7; }
+        if (r.note) { const lines = doc.splitTextToSize(r.note, 180); doc.text(lines, 14, y); y += lines.length * 6 + 4; }
+        y += 4;
+        if (y > 270) { doc.addPage(); y = 20; }
+      });
+      doc.save('焦虑急救箱报告.pdf');
+      toast('PDF 已导出');
+    }
+    function exportJSON() {
       const records = getRecords();
       if (!records.length) return toast('没有数据');
       const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `anxiety-kit-backup-${new Date().toISOString().slice(0,10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast('已导出');
+      const a = document.createElement('a'); a.href = url; a.download = `anxiety-kit-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
+      toast('已导出 JSON');
     }
-
     function resetData() {
       if (confirm('确定清空所有数据吗？')) {
-        localStorage.removeItem('anxiety_records');
-        localStorage.removeItem('anxiety_pro');
-        localStorage.removeItem('anxiety_streak');
-        localStorage.removeItem('anxiety_last_record');
-        toast('数据已重置');
-        setTimeout(() => location.reload(), 1000);
+        localStorage.removeItem('anxiety_records'); localStorage.removeItem('anxiety_pro'); localStorage.removeItem('anxiety_streak'); localStorage.removeItem('anxiety_last_record'); localStorage.removeItem('anxiety_trial_start');
+        toast('数据已重置'); setTimeout(() => location.reload(), 1000);
       }
     }
-
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
