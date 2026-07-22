@@ -1,820 +1,873 @@
-     1|     1|<!DOCTYPE html>
-     2|     2|<html lang="zh-CN">
-     3|     3|<head>
-     4|     4|  <meta charset="UTF-8">
-     5|     5|  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-     6|     6|  <title>焦虑急救箱 | 60秒，让自己回来</title>
-     7|     7|  <meta name="description" content="焦虑、恐慌、失眠时，一键启动科学急救工具：呼吸、接地、认知重构、肌肉放松、情绪倾倒。本地存储，无需登录。">
-     8|     8|  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
-     9|     9|  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    10|    10|  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-    11|    11|  <style>
-    12|    12|    :root {
-    13|    13|      --primary: #0ea5e9;
-    14|    14|      --primary-light: #38bdf8;
-    15|    15|      --primary-dark: #0284c7;
-    16|    16|      --accent: #f43f5e;
-    17|    17|      --accent-light: #fb7185;
-    18|    18|      --success: #34d399;
-    19|    19|      --warning: #fbbf24;
-    20|    20|      --bg: #0b1120;
-    21|    21|      --surface: rgba(255,255,255,0.07);
-    22|    22|      --surface-solid: rgba(255,255,255,0.12);
-    23|    23|      --card-border: rgba(255,255,255,0.12);
-    24|    24|      --text: #ffffff;
-    25|    25|      --text-secondary: rgba(255,255,255,0.65);
-    26|    26|      --text-tertiary: rgba(255,255,255,0.45);
-    27|    27|      --shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
-    28|    28|      --radius: 24px;
-    29|    29|      --radius-sm: 16px;
-    30|    30|    }
-    31|    31|    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    32|    32|    html, body { min-height: 100%; font-family: 'Noto Sans SC', -apple-system, sans-serif; color: var(--text); line-height: 1.6; overflow-x: hidden; }
-    33|    33|    body { background: var(--bg); position: relative; }
-    34|    34|    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 20% 40%, rgba(14,165,233,0.22), transparent 60%), radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244,63,94,0.15), transparent 55%), radial-gradient(ellipse 70% 60% at 50% 90%, rgba(52,211,153,0.1), transparent 55%), linear-gradient(180deg, #0b1120 0%, #0f172a 100%); z-index: -2; pointer-events: none; }
-    35|    35|    body::after { content: ''; position: fixed; inset: 0; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); opacity: 0.03; z-index: -1; pointer-events: none; }
-    36|    36|    .container { max-width: 860px; margin: 0 auto; padding: 20px; padding-bottom: 100px; }
-    37|    37|    header { text-align: center; padding: 28px 0 20px; }
-    38|    38|    .brand { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 12px; animation: float 6s ease-in-out infinite; }
-    39|    39|    .logo { width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 0 30px rgba(14,165,233,0.4); border: 1px solid rgba(255,255,255,0.2); }
-    40|    40|    .brand h1 { font-size: 1.8rem; font-weight: 900; }
-    41|    41|    .tagline { color: var(--text-secondary); font-size: 0.95rem; }
-    42|    42|    .plan-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--card-border); color: var(--primary-light); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-top: 12px; transition: all 0.2s; }
-    43|    43|    .plan-badge:hover { background: var(--surface-solid); }
-    44|    44|    .plan-badge.pro { color: #fbbf24; border-color: rgba(251,191,36,0.3); }
-    45|    45|    .sos-btn { width: 100%; padding: 28px; background: linear-gradient(135deg, var(--accent) 0%, #be123c 100%); border: none; border-radius: var(--radius); color: white; font-size: 1.4rem; font-weight: 900; cursor: pointer; margin-bottom: 20px; box-shadow: 0 12px 40px rgba(244,63,94,0.4); transition: all 0.2s; position: relative; overflow: hidden; }
-    46|    46|    .sos-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(244,63,94,0.5); }
-    47|    47|    .sos-btn:active { transform: translateY(0); }
-    48|    48|    .sos-btn small { display: block; font-size: 0.85rem; font-weight: 500; margin-top: 6px; opacity: 0.9; }
-    49|    49|    .sos-btn::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%); animation: pulse 3s ease-in-out infinite; }
-    50|    50|    .quick-tools { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-    51|    51|    .quick-card { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 18px; cursor: pointer; transition: all 0.2s; text-align: center; backdrop-filter: blur(20px); }
-    52|    52|    .quick-card:hover { background: var(--surface-solid); transform: translateY(-3px); }
-    53|    53|    .quick-card .emoji { font-size: 2rem; margin-bottom: 8px; }
-    54|    54|    .quick-card .title { font-weight: 700; font-size: 0.95rem; }
-    55|    55|    .quick-card .desc { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
-    56|    56|    .quick-card.locked { opacity: 0.6; position: relative; }
-    57|    57|    .quick-card.locked::after { content: '👑'; position: absolute; top: 8px; right: 8px; font-size: 0.85rem; }
-    58|    58|    .card { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; backdrop-filter: blur(20px); box-shadow: var(--shadow); }
-    59|    59|    .card-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
-    60|    60|    .card-title span { font-size: 1.3rem; }
-    61|    61|    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-    62|    62|    .stat { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 16px 8px; text-align: center; }
-    63|    63|    .stat-value { font-size: 1.5rem; font-weight: 900; color: var(--primary-light); }
-    64|    64|    .stat-label { font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
-    65|    65|    .tabs { display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
-    66|    66|    .tab { padding: 8px 18px; border-radius: 20px; background: var(--surface); border: 1px solid var(--card-border); color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
-    67|    67|    .tab.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-color: transparent; }
-    68|    68|    .chart-wrap { position: relative; height: 240px; }
-    69|    69|    .form-group { margin-bottom: 18px; }
-    70|    70|    .form-label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; display: block; font-weight: 500; }
-    71|    71|    .intensity-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; }
-    72|    72|    .slider-track { height: 8px; border-radius: 4px; background: var(--surface-solid); position: relative; }
-    73|    73|    input[type=range] { -webkit-appearance: none; width: 100%; height: 8px; background: transparent; position: absolute; top: 0; left: 0; cursor: pointer; }
-    74|    74|    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-light), var(--primary)); border: 2px solid white; box-shadow: 0 0 16px rgba(14,165,233,0.5); margin-top: -8px; }
-    75|    75|    .symptom-grid, .trigger-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    76|    76|    .chip { background: var(--surface); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 6px; text-align: center; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; color: var(--text-secondary); }
-    77|    77|    .chip:hover { background: var(--surface-solid); color: var(--text); }
-    78|    78|    .chip.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-color: transparent; }
-    79|    79|    textarea { width: 100%; min-height: 100px; padding: 14px; background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); font-size: 1rem; color: var(--text); resize: vertical; font-family: inherit; }
-    80|    80|    textarea::placeholder { color: var(--text-tertiary); }
-    81|    81|    textarea:focus { outline: none; border-color: var(--primary-light); }
-    82|    82|    .btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 24px rgba(14,165,233,0.35); }
-    83|    83|    .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(14,165,233,0.45); }
-    84|    84|    .btn-secondary { background: transparent; color: var(--primary-light); border: 1px solid var(--primary-light); box-shadow: none; }
-    85|    85|    .btn-secondary:hover { background: rgba(14,165,233,0.1); }
-    86|    86|    .btn-gold { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #0f172a; box-shadow: 0 8px 24px rgba(251,191,36,0.35); }
-    87|    87|    .btn-row { display: flex; gap: 10px; }
-    88|    88|    .btn-row .btn { flex: 1; }
-    89|    89|    .btn-small { padding: 8px 14px; font-size: 0.8rem; border-radius: 10px; }
-    90|    90|    .paywall { background: linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.9) 100%); border: 1px solid rgba(14,165,233,0.3); border-radius: var(--radius); padding: 28px; text-align: center; margin-bottom: 20px; box-shadow: var(--shadow), 0 0 60px rgba(14,165,233,0.15); }
-    91|    91|    .paywall h3 { font-size: 1.4rem; margin-bottom: 10px; }
-    92|    92|    .paywall > p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
-    93|    93|    .price-wrap { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
-    94|    94|    .price-box { background: var(--surface); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 24px; min-width: 130px; cursor: pointer; transition: all 0.2s; }
-    95|    95|    .price-box:hover, .price-box.selected { background: rgba(14,165,233,0.15); border-color: var(--primary-light); }
-    96|    96|    .price-box .price { font-size: 1.7rem; font-weight: 900; }
-    97|    97|    .price-box .price span { font-size: 0.8rem; color: var(--text-secondary); }
-    98|    98|    .price-box .period { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px; }
-    99|    99|    .features { text-align: left; display: inline-block; margin: 16px 0; list-style: none; }
-   100|   100|    .features li { margin-bottom: 10px; font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
-   101|   101|    .features li svg { width: 18px; height: 18px; color: var(--success); flex-shrink: 0; }
-   102|   102|    .ad-banner { background: var(--surface); border: 1px dashed var(--card-border); border-radius: var(--radius-sm); padding: 16px; text-align: center; color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 20px; }
-   103|   103|    .history-list { display: flex; flex-direction: column; gap: 10px; }
-   104|   104|    .history-item { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 14px; transition: all 0.2s; }
-   105|   105|    .history-item:hover { background: var(--surface-solid); }
-   106|   106|    .history-meta { font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
-   107|   107|    .history-meta span { background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 10px; }
-   108|   108|    .history-text { font-size: 0.9rem; color: var(--text); line-height: 1.6; }
-   109|   109|    .history-actions { display: flex; gap: 8px; margin-top: 10px; }
-   110|   110|    .history-actions button { background: transparent; border: 1px solid var(--card-border); color: var(--text-tertiary); padding: 5px 12px; border-radius: 10px; font-size: 0.75rem; cursor: pointer; }
-   111|   111|    .history-actions button:hover { background: rgba(255,255,255,0.1); color: var(--text); }
-   112|   112|    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
-   113|   113|    .empty-state .emoji { font-size: 3rem; margin-bottom: 12px; }
-   114|   114|    .modal-overlay { position: fixed; inset: 0; background: rgba(11,17,32,0.92); z-index: 900; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-   115|   115|    .modal-overlay.show { opacity: 1; pointer-events: auto; }
-   116|   116|    .modal { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; backdrop-filter: blur(20px); }
-   117|   117|    .modal-wide { max-width: 640px; }
-   118|   118|    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-   119|   119|    .modal-header h3 { font-size: 1.2rem; }
-   120|   120|    .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.6rem; cursor: pointer; }
-   121|   121|    .modal-close:hover { color: var(--text); }
-   122|   122|    .breath-container { text-align: center; padding: 20px 0; }
-   123|   123|    .breath-circle { width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light)); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 900; box-shadow: 0 0 50px rgba(14,165,233,0.4); }
-   124|   124|    .breath-circle.inhale { animation: breatheIn 4s ease-in-out forwards; }
-   125|   125|    .breath-circle.hold { animation: breatheHold 7s ease-in-out forwards; }
-   126|   126|    .breath-circle.exhale { animation: breatheExhale 8s ease-in-out forwards; }
-   127|   127|    .breath-text { font-size: 1.1rem; color: var(--primary-light); margin-bottom: 8px; }
-   128|   128|    .breath-sub { font-size: 0.85rem; color: var(--text-secondary); }
-   129|   129|    .grounding-list, .tool-list { display: flex; flex-direction: column; gap: 12px; }
-   130|   130|    .grounding-item, .tool-item { background: var(--surface-solid); border-radius: 12px; padding: 16px; }
-   131|   131|    .grounding-item strong, .tool-item strong { color: var(--primary-light); display: block; margin-bottom: 4px; }
-   132|   132|    .grounding-item p, .tool-item p { color: var(--text-secondary); font-size: 0.9rem; }
-   133|   133|    .cbt-card { background: var(--surface-solid); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-   134|   134|    .cbt-card h4 { color: var(--primary-light); font-size: 0.95rem; margin-bottom: 8px; }
-   135|   135|    .cbt-card p { color: var(--text); font-size: 0.9rem; line-height: 1.7; }
-   136|   136|    .cbt-card .input { width: 100%; padding: 10px; background: var(--surface); border: 1px solid var(--card-border); border-radius: 10px; color: var(--text); margin-top: 8px; font-family: inherit; }
-   137|   137|    .tool-detail { background: var(--surface-solid); border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
-   138|   138|    .tool-detail:hover { background: rgba(255,255,255,0.15); }
-   139|   139|    .tool-detail h4 { color: var(--primary-light); font-size: 0.95rem; margin-bottom: 4px; }
-   140|   140|    .tool-detail p { color: var(--text-secondary); font-size: 0.85rem; }
-   141|   141|    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15,23,42,0.95); color: white; padding: 14px 28px; border-radius: 30px; font-size: 0.9rem; z-index: 1100; opacity: 0; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1); }
-   142|   142|    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-   143|   143|    .progress-bar { height: 6px; background: var(--surface-solid); border-radius: 3px; overflow: hidden; margin: 16px 0; }
-   144|   144|    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: 3px; transition: width 0.5s; }
-   145|   145|    .step-count { font-size: 0.75rem; color: var(--text-tertiary); text-align: center; margin-bottom: 8px; }
-   146|   146|    .crisis-banner { background: linear-gradient(135deg, rgba(244,63,94,0.2), rgba(190,18,60,0.15)); border: 1px solid rgba(244,63,94,0.4); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px; }
-   147|   147|    .crisis-banner h4 { color: var(--accent-light); margin-bottom: 6px; }
-   148|   148|    .crisis-banner p { color: var(--text-secondary); font-size: 0.85rem; }
-   149|   149|    .checklist { display: flex; flex-direction: column; gap: 10px; }
-   150|   150|    .check-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--surface-solid); border-radius: 10px; cursor: pointer; }
-   151|   151|    .check-item input { width: 18px; height: 18px; accent-color: var(--primary); }
-   152|   152|    .check-item.checked { opacity: 0.6; text-decoration: line-through; }
-   153|   153|    .hidden { display: none !important; }
-   154|   154|    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-   155|   155|    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 0.3; } }
-   156|   156|    @keyframes breatheIn { from { transform: scale(1); } to { transform: scale(1.3); box-shadow: 0 0 70px rgba(14,165,233,0.6); } }
-   157|   157|    @keyframes breatheHold { from { transform: scale(1.3); } to { transform: scale(1.3); } }
-   158|   158|    @keyframes breatheExhale { from { transform: scale(1.3); } to { transform: scale(1); } }
-   159|   159|    @media (max-width: 600px) {
-   160|   160|      .container { padding: 16px; padding-bottom: 80px; }
-   161|   161|      .brand h1 { font-size: 1.5rem; }
-   162|   162|      .sos-btn { font-size: 1.2rem; padding: 24px; }
-   163|   163|      .quick-tools { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-   164|   164|      .quick-card { padding: 14px 8px; }
-   165|   165|      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-   166|   166|      .symptom-grid, .trigger-grid { grid-template-columns: repeat(2, 1fr); }
-   167|   167|      .price-wrap { flex-direction: column; }
-   168|   168|      .price-box { width: 100%; }
-   169|   169|    }
-   170|   170|  </style>
-   171|   171|</head>
-   172|   172|<body>
-   173|   173|  <div class="container">
-   174|   174|    <header>
-   175|   175|      <div class="brand">
-   176|   176|        <div class="logo">🧘</div>
-   177|   177|        <h1>焦虑急救箱</h1>
-   178|   178|      </div>
-   179|   179|      <p class="tagline">60秒，让自己回来</p>
-   180|   180|      <span class="plan-badge" id="planBadge" data-action="showPaywall">免费版</span>
-   181|   181|    </header>
-   182|   182|
-   183|   183|    <button class="sos-btn" data-action="openSOS">
-   184|   184|      🆘 一键 SOS 急救
-   185|   185|      <small>恐慌/焦虑发作时，立即开始平复</small>
-   186|   186|    </button>
-   187|   187|
-   188|   188|    <div class="quick-tools">
-   189|   189|      <div class="quick-card" data-action="openBreathing"><div class="emoji">🫁</div><div class="title">快速呼吸</div><div class="desc">4-7-8 呼吸法</div></div>
-   190|   190|      <div class="quick-card" data-action="openGrounding"><div class="emoji">🧊</div><div class="title">5-4-3-2-1</div><div class="desc"> grounding 接地练习</div></div>
-   191|   191|      <div class="quick-card" data-action="openCBT"><div class="emoji">💭</div><div class="title">认知重构</div><div class="desc">区分想法与事实</div></div>
-   192|   192|      <div class="quick-card" data-action="openDump"><div class="emoji">📝</div><div class="title">情绪倾倒</div><div class="desc">把想法全部倒出</div></div>
-   193|   193|      <div class="quick-card" data-action="openPMR"><div class="emoji">🧘‍♂️</div><div class="title">肌肉放松</div><div class="desc">渐进式身体放松</div></div>
-   194|   194|      <div class="quick-card" data-action="openSleep" id="sleepCard"><div class="emoji">🌙</div><div class="title">睡眠仪式</div><div class="desc">睡前放松练习</div></div>
-   195|   195|      <div class="quick-card locked" data-action="openPrevention"><div class="emoji">🛡️</div><div class="title">预防计划</div><div class="desc">每日降低焦虑</div></div>
-   196|   196|      <div class="quick-card locked" data-action="showPaywall"><div class="emoji">📊</div><div class="title">PDF 报告</div><div class="desc">给医生/咨询师</div></div>
-   197|   197|    </div>
-   198|   198|
-   199|   199|    <div class="stats-grid" id="statsGrid">
-   200|   200|      <div class="stat"><div class="stat-value" id="totalAttacks">0</div><div class="stat-label">累计发作</div></div>
-   201|   201|      <div class="stat"><div class="stat-value" id="avgIntensity">-</div><div class="stat-label">平均强度</div></div>
-   202|   202|      <div class="stat"><div class="stat-value" id="calmCount">0</div><div class="stat-label">已平复</div></div>
-   203|   203|      <div class="stat"><div class="stat-value" id="streakDays">0</div><div class="stat-label">连续干预</div></div>
-   204|   204|    </div>
-   205|   205|
-   206|   206|    <div class="card" id="recordCard">
-   207|   207|      <div class="card-title"><span>📝</span> 记录一次焦虑/恐慌</div>
-   208|   208|      <div class="form-group">
-   209|   209|        <span class="form-label">现在的焦虑强度是多少？</span>
-   210|   210|        <div class="intensity-labels"><span>轻微</span><span id="intensityValue">5/10</span><span>极度恐慌</span></div>
-   211|   211|        <div class="slider-track"><input type="range" id="intensity" min="1" max="10" value="5" oninput="updateIntensity()"></div>
-   212|   212|      </div>
-   213|   213|      <div class="form-group">
-   214|   214|        <span class="form-label">你出现了哪些症状？（可多选）</span>
-   215|   215|        <div class="symptom-grid" id="symptomGrid"></div>
-   216|   216|      </div>
-   217|   217|      <div class="form-group">
-   218|   218|        <span class="form-label">触发因素是什么？（可多选）</span>
-   219|   219|        <div class="trigger-grid" id="triggerGrid"></div>
-   220|   220|      </div>
-   221|   221|      <div class="form-group">
-   222|   222|        <span class="form-label">此刻你在想什么？</span>
-   223|   223|        <textarea id="note" placeholder="例如：我心跳很快，感觉自己要失控了，很害怕..."></textarea>
-   224|   224|      </div>
-   225|   225|      <div class="btn-row">
-   226|   226|        <button class="btn" data-action="saveRecord" style="flex:2;">记录并启动急救</button>
-   227|   227|        <button class="btn btn-secondary" data-action="openSOS" style="flex:1;">仅急救</button>
-   228|   228|      </div>
-   229|   229|    </div>
-   230|   230|
-   231|   231|    <div class="paywall" id="paywall">
-   232|   232|      <h3>升级焦虑急救箱 Pro</h3>
-   233|   233|      <p>完整追踪、预测焦虑模式，把控制权拿回来</p>
-   234|   234|      <div class="price-wrap">
-   235|   235|        <div class="price-box selected" data-action="selectPlan" data-plan="month">
-   236|   236|          <div class="price">¥9.9<span>/月</span></div>
-   237|   237|          <div class="period">按月订阅</div>
-   238|   238|        </div>
-   239|   239|        <div class="price-box" data-action="selectPlan" data-plan="year">
-   240|   240|          <div class="price">¥69<span>/年</span></div>
-   241|   241|          <div class="period">立省 ¥49.8</div>
-   242|   242|        </div>
-   243|   243|      </div>
-   244|   244|      <ul class="features">
-   245|   245|        <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 无限记录焦虑发作</li>
-   246|   246|        <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 发作频率/诱因分析</li>
-   247|   247|        <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 高级 CBT 认知重构练习</li>
-   248|   248|        <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 每日预防计划与提醒</li>
-   249|   249|        <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 导出 PDF 给医生/咨询师</li>
-   250|   250|        <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 无广告，隐私锁</li>
-   251|   251|      </ul>
-   252|   252|      <button class="btn btn-gold" data-action="upgrade">立即升级 Pro</button>
-   253|   253|      <p id="trialHint" style="margin-top:14px; font-size:0.75rem; color:var(--text-tertiary);">支付需对接微信/Stripe，当前为演示占位</p>
-   254|   254|    </div>
-   255|   255|
-   256|   256|    <div class="ad-banner" id="adBanner">📢 广告位：可接入百度联盟 / Google AdSense</div>
-   257|   257|
-   258|   258|    <div class="card" id="chartCard">
-   259|   259|      <div class="card-title"><span>📈</span> 焦虑趋势</div>
-   260|   260|      <div class="tabs" id="chartTabs"></div>
-   261|   261|      <div class="chart-wrap"><canvas id="anxietyChart"></canvas></div>
-   262|   262|    </div>
-   263|   263|
-   264|   264|    <div class="card" id="triggerCard">
-   265|   265|      <div class="card-title"><span>🎯</span> 常见诱因</div>
-   266|   266|      <div class="chart-wrap" style="height:200px;"><canvas id="triggerChart"></canvas></div>
-   267|   267|    </div>
-   268|   268|
-   269|   269|    <div class="card" id="historyCard">
-   270|   270|      <div class="card-title"><span>🕘</span> 最近记录</div>
-   271|   271|      <div class="history-list" id="historyList"></div>
-   272|   272|    </div>
-   273|   273|
-   274|   274|    <footer>
-   275|   275|      <p>焦虑急救箱 · 紧急情况请拨打 120 或前往医院</p>
-   276|   276|      <p style="margin-top:8px;"><a href="#" data-action="resetData">重置本地数据</a> · <a href="#" data-action="openHotlines">求助热线</a> · <a href="#" data-action="exportJSON">导出数据</a></p>
-   277|   277|    </footer>
-   278|   278|  </div>
-   279|   279|
-   280|   280|  <div class="toast" id="toast"></div>
-   281|   281|
-   282|   282|  <div class="modal-overlay" id="sosModal">
-   283|   283|    <div class="modal">
-   284|   284|      <div class="modal-header"><h3>🆘 SOS 急救流程</h3><button class="modal-close" data-action="closeSOS">×</button></div>
-   285|   285|      <div id="sosBody">
-   286|   286|        <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">选择一个最适合你此刻状态的工具：</p>
-   287|   287|        <div class="tool-detail" data-action="sosToBreathing"><h4>🫁 4-7-8 呼吸法</h4><p>最适合：心跳加速、呼吸急促、身体紧绷</p></div>
-   288|   288|        <div class="tool-detail" data-action="sosToGrounding"><h4>🧊 5-4-3-2-1 grounding</h4><p>最适合：感觉不真实、失控、要逃离</p></div>
-   289|   289|        <div class="tool-detail" data-action="sosToPMR"><h4>🧘‍♂️ 渐进式肌肉放松</h4><p>最适合：全身紧绷、肩颈僵硬、无法入睡</p></div>
-   290|   290|        <div class="tool-detail" data-action="sosToCBT"><h4>💭 认知重构</h4><p>最适合：灾难化想法、反复担忧、停不下来</p></div>
-   291|   291|        <div class="tool-detail" data-action="sosToDump"><h4>📝 情绪倾倒</h4><p>最适合：脑子里一团乱、想大声喊出来</p></div>
-   292|   292|        <div class="tool-detail" data-action="sosToHotlines"><h4>📞 危机热线</h4><p>如果念头控制不住，请立即联系专业帮助</p></div>
-   293|   293|      </div>
-   294|   294|    </div>
-   295|   295|  </div>
-   296|   296|
-   297|   297|  <div class="modal-overlay" id="breathingModal">
-   298|   298|    <div class="modal">
-   299|   299|      <div class="modal-header"><h3>🫁 4-7-8 呼吸法</h3><button class="modal-close" data-action="closeBreathing">×</button></div>
-   300|   300|      <div class="breath-container">
-   301|   301|        <div class="breath-circle" id="breathCircle">吸气</div>
-   302|   302|        <div class="breath-text" id="breathText">准备开始...</div>
-   303|   303|        <div class="breath-sub" id="breathSub">跟着圆球的节奏，慢慢呼吸</div>
-   304|   304|        <button class="btn" data-action="startBreathing" id="breathStartBtn" style="margin-top:20px;">开始练习</button>
-   305|   305|      </div>
-   306|   306|    </div>
-   307|   307|  </div>
-   308|   308|
-   309|   309|  <div class="modal-overlay" id="groundingModal">
-   310|   310|    <div class="modal">
-   311|   311|      <div class="modal-header"><h3>🧊 5-4-3-2-1 grounding</h3><button class="modal-close" data-action="closeGrounding">×</button></div>
-   312|   312|      <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">用感官把你拉回当下。不需要全部完成，做到你能做的就好。</p>
-   313|   313|      <div class="grounding-list">
-   314|   314|        <div class="grounding-item"><strong>5 样你能看到的东西</strong><p>环顾四周，说出 5 个物体的名字。比如：墙、灯、桌子、手机、我的手。</p></div>
-   315|   315|        <div class="grounding-item"><strong>4 样你能触摸到的东西</strong><p>感受衣服、桌面、手机屏幕或你的皮肤。注意它们的温度、质地。</p></div>
-   316|   316|        <div class="grounding-item"><strong>3 样你能听到的声音</strong><p>空调声、车流声、自己的呼吸。慢慢辨认它们。</p></div>
-   317|   317|        <div class="grounding-item"><strong>2 样你能闻到的气味</strong><p>咖啡、香水、洗手液，或者深呼吸空气本身的味道。</p></div>
-   318|   318|        <div class="grounding-item"><strong>1 样你能尝到的味道</strong><p>喝一口水，或抿一下嘴唇。把注意力放在这个简单的味觉上。</p></div>
-   319|   319|      </div>
-   320|   320|      <button class="btn" data-action="markCalmed" data-tool="grounding" style="margin-top:16px;">我感觉好点了</button>
-   321|   321|    </div>
-   322|   322|  </div>
-   323|   323|
-   324|   324|  <div class="modal-overlay" id="cbtModal">
-   325|   325|    <div class="modal">
-   326|   326|      <div class="modal-header"><h3>💭 认知重构</h3><button class="modal-close" data-action="closeCBT">×</button></div>
-   327|   327|      <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">焦虑常常来自"灾难化想法"。试着把它们写下来，看看事实是什么。</p>
-   328|   328|      <div class="cbt-card"><h4>1. 我现在最担心的想法是？</h4><input class="input" id="cbtThought" placeholder="例如：我心脏病要发作了"></div>
-   329|   329|      <div class="cbt-card"><h4>2. 这个想法发生的可能性有多大？</h4><input class="input" id="cbtProbability" placeholder="0-100%"></div>
-   330|   330|      <div class="cbt-card"><h4>3. 如果朋友有这个想法，我会对他说什么？</h4><input class="input" id="cbtAdvice" placeholder="例如：你已经检查过身体，医生说是焦虑"></div>
-   331|   331|      <div class="cbt-card"><h4>4. 更平衡的想法可能是？</h4><input class="input" id="cbtBalance" placeholder="例如：我很不舒服，但这是焦虑反应，会过去的"></div>
-   332|   332|      <button class="btn" data-action="saveCBT" style="margin-top:8px;">保存这次重构</button>
-   333|   333|    </div>
-   334|   334|  </div>
-   335|   335|
-   336|   336|  <div class="modal-overlay" id="dumpModal">
-   337|   337|    <div class="modal">
-   338|   338|      <div class="modal-header"><h3>📝 情绪倾倒</h3><button class="modal-close" data-action="closeDump">×</button></div>
-   339|   339|      <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">不加修改、不加评判，把所有想法、恐惧、愤怒都写在这里。写完后点"倒空"。</p>
-   340|   340|      <textarea id="dumpText" style="min-height:160px;" placeholder="我很害怕... 我很生气... 我不应该..."></textarea>
-   341|   341|      <div class="btn-row" style="margin-top:16px;">
-   342|   342|        <button class="btn" data-action="emptyDump">🗑️ 倒空它</button>
-   343|   343|        <button class="btn btn-secondary" data-action="saveDump">保存为日记</button>
-   344|   344|      </div>
-   345|   345|    </div>
-   346|   346|  </div>
-   347|   347|
-   348|   348|  <div class="modal-overlay" id="pmrModal">
-   349|   349|    <div class="modal modal-wide">
-   350|   350|      <div class="modal-header"><h3>🧘‍♂️ 渐进式肌肉放松</h3><button class="modal-close" data-action="closePMR">×</button></div>
-   351|   351|      <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">先用力绷紧某组肌肉 5 秒，然后突然放松，把注意力放在放松的感觉上。</p>
-   352|   352|      <div class="progress-bar"><div class="progress-fill" id="pmrProgress" style="width:0%"></div></div>
-   353|   353|      <div class="step-count" id="pmrStepCount">0 / 8</div>
-   354|   354|      <div id="pmrBody">
-   355|   355|        <div class="breath-container">
-   356|   356|          <div class="breath-circle" id="pmrCircle" style="font-size:1.1rem;">准备</div>
-   357|   357|          <div class="breath-text" id="pmrText">点击下方开始</div>
-   358|   358|          <div class="breath-sub" id="pmrSub">一次只关注一组肌肉，不用追求完美</div>
-   359|   359|        </div>
-   360|   360|      </div>
-   361|   361|      <button class="btn" id="pmrBtn" data-action="startPMR">开始练习</button>
-   362|   362|    </div>
-   363|   363|  </div>
-   364|   364|
-   365|   365|  <div class="modal-overlay" id="sleepModal">
-   366|   366|    <div class="modal modal-wide">
-   367|   367|      <div class="modal-header"><h3>🌙 睡前仪式</h3><button class="modal-close" data-action="closeSleep">×</button></div>
-   368|   368|      <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">焦虑常在夜晚加重。用 10 分钟让身体知道：现在可以休息了。</p>
-   369|   369|      <div class="checklist" id="sleepChecklist">
-   370|   370|        <div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>📱 把手机放到 1 米外，屏幕朝下</span></div>
-   371|   371|        <div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🌡️ 调低室温，让房间稍凉一点</span></div>
-   372|   372|        <div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🫁 做 3 轮慢呼吸（吸 4 秒，呼 6 秒）</span></div>
-   373|   373|        <div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🧘 从头到脚扫描身体，找到紧绷处并放松</span></div>
-   374|   374|        <div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>📝 把明天的担忧写进「焦虑清单」，告诉自己：现在不处理</span></div>
-   375|   375|      </div>
-   376|   376|      <button class="btn" data-action="startSleepBreathing" style="margin-top:16px;">开始睡前呼吸</button>
-   377|   377|      <div id="sleepBreath" class="hidden" style="margin-top:20px;text-align:center;">
-   378|   378|        <div class="breath-circle" id="sleepCircle" style="width:120px;height:120px;font-size:1rem;">吸气</div>
-   379|   379|        <div class="breath-text" id="sleepText">吸气 4 秒</div>
-   380|   380|        <div class="breath-sub" id="sleepSub">呼气尽量比吸气长</div>
-   381|   381|      </div>
-   382|   382|    </div>
-   383|   383|  </div>
-   384|   384|
-   385|   385|  <div class="modal-overlay" id="preventionModal">
-   386|   386|    <div class="modal modal-wide">
-   387|   387|      <div class="modal-header"><h3>🛡️ 每日预防计划</h3><button class="modal-close" data-action="closePrevention">×</button></div>
-   388|   388|      <div id="preventionBody">
-   389|   389|        <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">根据你今天的情况，选择一个当天的重点任务：</p>
-   390|   390|        <div class="checklist" id="preventionList">
-   391|   391|          <div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🌞 早晨 5 分钟呼吸练习</span></div>
-   392|   392|          <div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>☕ 减少 1 杯咖啡或浓茶</span></div>
-   393|   393|          <div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🚶 午间散步 10 分钟</span></div>
-   394|   394|          <div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🌙 睡前 30 分钟不用手机</span></div>
-   395|   395|          <div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>📝 记录 1 件今天值得认可的小事</span></div>
-   396|   396|        </div>
-   397|   397|        <div class="crisis-banner" style="margin-top:16px;">
-   398|   398|          <h4>📌 Pro 进阶计划</h4>
-   399|   399|          <p>根据你的发作记录，预测高风险时段，提前推送提醒。升级 Pro 解锁完整计划。</p>
-   400|   400|        </div>
-   401|   401|      </div>
-   402|   402|      <button class="btn btn-gold" data-action="showPaywall" style="margin-top:8px;">升级 Pro 查看个性化计划</button>
-   403|   403|    </div>
-   404|   404|  </div>
-   405|   405|
-   406|   406|  <div class="modal-overlay" id="hotlineModal">
-   407|   407|    <div class="modal">
-   408|   408|      <div class="modal-header"><h3>📞 求助热线</h3><button class="modal-close" data-action="closeHotlines">×</button></div>
-   409|   409|      <div class="crisis-banner">
-   410|   410|        <h4>⚠️ 如果你正在考虑伤害自己</h4>
-   411|   411|        <p>请立即拨打 120 或 110，或联系身边可信的人。焦虑会过去，但你不需要一个人扛。</p>
-   412|   412|      </div>
-   413|   413|      <div class="grounding-list">
-   414|   414|        <div class="grounding-item"><strong>全国 24 小时心理援助热线：010-82951332</strong><p>北京回龙观医院心理危机干预中心</p></div>
-   415|   415|        <div class="grounding-item"><strong>北京心理危机研究与干预中心：010-82951332</strong><p>24 小时服务</p></div>
-   416|   416|        <div class="grounding-item"><strong>上海心理援助热线：021-12320-5</strong><p>工作日 8:00-22:00</p></div>
-   417|   417|        <div class="grounding-item"><strong>广州市心理危机干预中心：020-81899120</strong><p>24 小时服务</p></div>
-   418|   418|        <div class="grounding-item"><strong>深圳市心理援助热线：0755-25629459</strong><p>24 小时服务</p></div>
-   419|   419|        <div class="grounding-item"><strong>紧急情况请直接拨打 120 或 110</strong><p>如果出现自伤/自杀念头，请立即寻求身边人或专业帮助。</p></div>
-   420|   420|      </div>
-   421|   421|    </div>
-   422|   422|  </div>
-   423|   423|
-   424|   424|  <div class="modal-overlay" id="panicTextModal">
-   425|   425|    <div class="modal">
-   426|   426|      <div class="modal-header"><h3>🗣️ 对自己说这些话</h3><button class="modal-close" data-action="closePanicText">×</button></div>
-   427|   427|      <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">惊恐发作时，身体正在误判危险。这些话不是鸡汤，是事实。</p>
-   428|   428|      <div class="tool-list">
-   429|   429|        <div class="tool-item"><strong>这是焦虑反应，不是危险。</strong><p>我的心跳快、呼吸急，是肾上腺素在作用，它会自己代谢掉。</p></div>
-   430|   430|        <div class="tool-item"><strong>我已经经历过，它过去了。</strong><p>每一次惊恐发作都结束了，这次也不会例外。</p></div>
-   431|   431|        <div class="tool-item"><strong>我不需要逃离，我需要待在这里。</strong><p>逃离会告诉大脑"这里很危险"，待住会让大脑重新学习。</p></div>
-   432|   432|        <div class="tool-item"><strong>把注意力放在呼吸上，而不是念头。</strong><p>念头不是命令，我可以看着它们，不被它们拉走。</p></div>
-   433|   433|        <div class="tool-item"><strong>我此刻是安全的。</strong><p>即使身体不舒服，我也没有真正危险。</p></div>
-   434|   434|      </div>
-   435|   435|      <button class="btn" data-action="panicToBreathing" style="margin-top:16px;">开始呼吸练习</button>
-   436|   436|    </div>
-   437|   437|  </div>
-   438|   438|
-   439|   439|  <script>
-   440|   440|    const SYMPTOMS = ['心跳加速', '呼吸困难', '头晕', '出汗', '发抖', '恶心', '胸闷', '手脚发麻', '耳鸣', '不真实感', '濒死感', '失控感'];
-   441|   441|    const TRIGGERS = ['工作压力', '人际冲突', '健康担忧', '财务问题', '睡眠不足', '咖啡因/酒精', '密闭空间', '人群/社交', '突发消息', '未来不确定'];
-   442|   442|    const PMR_STEPS = [
-   443|   443|      { name: '双手', tense: '握紧双拳，感受手指和手掌的紧张', relax: '慢慢松开，感受手指变暖、变重' },
-   444|   444|      { name: '手臂', tense: '弯曲手臂，绷紧二头肌', relax: '让手臂自然垂下，血液重新流动' },
-   445|   445|      { name: '肩膀', tense: '耸起肩膀，靠近耳朵', relax: '肩膀突然落下，感受颈部变长' },
-   446|   446|      { name: '面部', tense: '皱紧眉头、闭眼、抿嘴', relax: '放松整张脸，让额头和下巴变软' },
-   447|   447|      { name: '腹部', tense: '收紧腹部，像要被碰到', relax: '腹部放松，让呼吸自然进入腹部' },
-   448|   448|      { name: '臀部/腿部', tense: '收紧臀部，大腿用力', relax: '让腿变沉，陷进椅子或床' },
-   449|   449|      { name: '双脚', tense: '脚尖向上勾，绷紧小腿', relax: '脚放下，感受地面的支撑' },
-   450|   450|      { name: '全身', tense: '全身一起轻轻绷紧', relax: '全部呼出，像一摊泥一样沉下去' }
-   451|   451|    ];
-   452|   452|    let selectedSymptoms = new Set();
-   453|   453|    let selectedTriggers = new Set();
-   454|   454|    let isPro = false;
-   455|   455|    let trialDays = 0;
-   456|   456|    let selectedPlan = 'month';
-   457|   457|    let chartInstance = null;
-   458|   458|    let triggerChartInstance = null;
-   459|   459|    let breathTimer = null;
-   460|   460|    let pmrTimer = null;
-   461|   461|    let pmrIndex = 0;
-   462|   462|    let sleepTimer = null;
-   463|   463|    const $ = id => document.getElementById(id);
-   464|   464|    const toast = msg => {
-   465|   465|      const el = $('toast');
-   466|   466|      el.textContent = msg;
-   467|   467|      el.classList.add('show');
-   468|   468|      setTimeout(() => el.classList.remove('show'), 2500);
-   469|   469|    };
-   470|   470|    function init() {
-   471|   471|      renderSymptoms();
-   472|   472|      renderTriggers();
-   473|   473|      renderChartTabs();
-   474|   474|      loadPlan();
-   475|   475|      loadData();
-   476|   476|      renderTriggerChart();
-   477|   477|      updateLockedCards();
-   478|   478|    }
-   479|   479|    function loadPlan() {
-   480|   480|      isPro = localStorage.getItem('anxiety_pro') === '1';
-   481|   481|      const trialStart = parseInt(localStorage.getItem('anxiety_trial_start') || '0');
-   482|   482|      if (trialStart) {
-   483|   483|        const elapsed = Math.floor((Date.now() - trialStart) / (86400000));
-   484|   484|        trialDays = Math.max(0, 7 - elapsed);
-   485|   485|        if (trialDays > 0) isPro = true;
-   486|   486|      }
-   487|   487|      const badge = $('planBadge');
-   488|   488|      badge.textContent = isPro ? 'Pro 版' : '免费版';
-   489|   489|      badge.classList.toggle('pro', isPro);
-   490|   490|      if (isPro) {
-   491|   491|        $('paywall').classList.add('hidden');
-   492|   492|        $('adBanner').classList.add('hidden');
-   493|   493|      }
-   494|   494|      const trialHint = $('trialHint');
-   495|   495|      if (trialHint) trialHint.textContent = trialDays > 0 ? `Pro 试用还剩 ${trialDays} 天` : '支付需对接微信/Stripe，当前为演示占位';
-   496|   496|    }
-   497|   497|    function updateLockedCards() {
-   498|   498|      document.querySelectorAll('.quick-card.locked').forEach(c => {
-   499|   499|        if (isPro) { c.classList.remove('locked'); c.querySelector('.title').style.opacity = '1'; }
-   500|   500|      });
-   501|   501|    }
-   502|   502|    function renderSymptoms() {
-   503|   503|      $('symptomGrid').innerHTML = SYMPTOMS.map(s => `<div class="chip" data-type="symptom" data-value="${s}" data-action="toggleChip" data-type="symptom" data-value="${s}">${s}</div>`).join('');
-   504|   504|    }
-   505|   505|    function renderTriggers() {
-   506|   506|      $('triggerGrid').innerHTML = TRIGGERS.map(t => `<div class="chip" data-type="trigger" data-value="${t}" data-action="toggleChip" data-type="trigger" data-value="${t}">${t}</div>`).join('');
-   507|   507|    }
-   508|   508|    function toggleChip(type, value) {
-   509|   509|      const set = type === 'symptom' ? selectedSymptoms : selectedTriggers;
-   510|   510|      if (set.has(value)) set.delete(value); else set.add(value);
-   511|   511|      document.querySelectorAll(`.chip[data-type="${type}"]`).forEach(c => { c.classList.toggle('active', set.has(c.dataset.value)); });
-   512|   512|    }
-   513|   513|    function updateIntensity() { $('intensityValue').textContent = `${$('intensity').value}/10`; }
-   514|   514|    function getRecords() {
-   515|   515|      try { return JSON.parse(localStorage.getItem('anxiety_records') || '[]'); }
-   516|   516|      catch (e) { return []; }
-   517|   517|    }
-   518|   518|    function saveRecords(records) { localStorage.setItem('anxiety_records', JSON.stringify(records)); }
-   519|   519|    function checkCrisis(text) {
-   520|   520|      if (!text) return false;
-   521|   521|      const crisisWords = ['自杀', '自残', '不想活', '不想活了', '结束生命', 'kill myself', '想死', '活着没意思', '死了算了'];
-   522|   522|      return crisisWords.some(w => text.includes(w));
-   523|   523|    }
-   524|   524|    function saveRecord() {
-   525|   525|      const intensity = parseInt($('intensity').value);
-   526|   526|      const note = $('note').value.trim();
-   527|   527|      if (checkCrisis(note)) {
-   528|   528|        openHotlines();
-   529|   529|        toast('检测到你的文字可能涉及危机，请查看求助热线');
-   530|   530|        return;
-   531|   531|      }
-   532|   532|      if (!isPro && getRecords().length >= 7) { showPaywall(); return toast('免费版最多保存 7 条记录，升级 Pro 解锁无限'); }
-   533|   533|      const record = { id: Date.now(), intensity, symptoms: Array.from(selectedSymptoms), triggers: Array.from(selectedTriggers), note, time: Date.now(), tools: [], calmed: false };
-   534|   534|      const records = getRecords();
-   535|   535|      records.unshift(record);
-   536|   536|      saveRecords(records);
-   537|   537|      updateStreak();
-   538|   538|      resetForm();
-   539|   539|      loadData();
-   540|   540|      renderTriggerChart();
-   541|   541|      toast('已记录');
-   542|   542|      openSOS();
-   543|   543|    }
-   544|   544|    function resetForm() {
-   545|   545|      $('intensity').value = 5;
-   546|   546|      updateIntensity();
-   547|   547|      selectedSymptoms.clear();
-   548|   548|      selectedTriggers.clear();
-   549|   549|      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-   550|   550|      $('note').value = '';
-   551|   551|    }
-   552|   552|    function updateStreak() {
-   553|   553|      const lastDate = localStorage.getItem('anxiety_last_record');
-   554|   554|      const today = new Date().toDateString();
-   555|   555|      if (lastDate === today) return;
-   556|   556|      let streak = parseInt(localStorage.getItem('anxiety_streak') || '0');
-   557|   557|      if (lastDate) {
-   558|   558|        const last = new Date(lastDate);
-   559|   559|        const diff = (new Date(today) - last) / (1000 * 60 * 60 * 24);
-   560|   560|        if (diff > 1.5) streak = 0;
-   561|   561|      }
-   562|   562|      streak++;
-   563|   563|      localStorage.setItem('anxiety_streak', streak);
-   564|   564|      localStorage.setItem('anxiety_last_record', today);
-   565|   565|    }
-   566|   566|    function getStreak() {
-   567|   567|      const lastDate = localStorage.getItem('anxiety_last_record');
-   568|   568|      const today = new Date().toDateString();
-   569|   569|      const yesterday = new Date(Date.now() - 86400000).toDateString();
-   570|   570|      let streak = parseInt(localStorage.getItem('anxiety_streak') || '0');
-   571|   571|      if (!lastDate) return 0;
-   572|   572|      if (lastDate !== today && lastDate !== yesterday) return 0;
-   573|   573|      return streak;
-   574|   574|    }
-   575|   575|    function loadData() {
-   576|   576|      const records = getRecords();
-   577|   577|      const visible = isPro ? records : records.slice(0, 7);
-   578|   578|      renderStats(visible);
-   579|   579|      renderHistory(visible);
-   580|   580|      renderChart('week');
-   581|   581|    }
-   582|   582|    function renderStats(records) {
-   583|   583|      if (!records.length) {
-   584|   584|        $('totalAttacks').textContent = '0'; $('avgIntensity').textContent = '-'; $('calmCount').textContent = '0'; $('streakDays').textContent = '0';
-   585|   585|        return;
-   586|   586|      }
-   587|   587|      $('totalAttacks').textContent = records.length;
-   588|   588|      $('avgIntensity').textContent = (records.reduce((s, r) => s + r.intensity, 0) / records.length).toFixed(1);
-   589|   589|      $('calmCount').textContent = records.filter(r => r.calmed).length;
-   590|   590|      $('streakDays').textContent = getStreak();
-   591|   591|    }
-   592|   592|    function renderHistory(records) {
-   593|   593|      const list = $('historyList');
-   594|   594|      if (!records.length) { list.innerHTML = '<div class="empty-state"><div class="emoji">📝</div><p>还没有记录</p><small>焦虑发作时记录一下，你会慢慢看见规律</small></div>'; return; }
-   595|   595|      list.innerHTML = records.slice(0, 10).map(r => {
-   596|   596|        const date = new Date(r.time);
-   597|   597|        const timeStr = `${date.getMonth()+1}月${date.getDate()}日 ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
-   598|   598|        const color = r.intensity >= 7 ? '#f43f5e' : r.intensity >= 4 ? '#fbbf24' : '#34d399';
-   599|   599|        return `<div class="history-item"><div class="history-meta"><span style="color:${color};font-weight:700;">强度 ${r.intensity}/10</span><span>${timeStr}</span>${r.calmed ? '<span style="color:#34d399;">✓ 已平复</span>' : ''}</div><div class="history-text">${r.note ? escapeHtml(r.note) : '无文字记录'}</div>${r.symptoms.length ? `<div style="margin-top:8px;">${r.symptoms.map(s => `<span style="display:inline-block;background:rgba(255,255,255,0.08);padding:3px 8px;border-radius:10px;font-size:0.7rem;margin-right:4px;">${s}</span>`).join('')}</div>` : ''}<div class="history-actions"><button data-action="markCalmedById" data-id="${r.id}">标记平复</button><button data-action="deleteRecord" data-id="${r.id}">删除</button></div></div>`;
-   600|   600|      }).join('');
-   601|   601|    }
-   602|   602|    function markCalmedById(id) {
-   603|   603|      const records = getRecords().map(r => r.id === id ? {...r, calmed: true} : r);
-   604|   604|      saveRecords(records); loadData();
-   605|   605|      toast('已标记平复，做得好');
-   606|   606|    }
-   607|   607|    function deleteRecord(id) {
-   608|   608|      if (!confirm('确定删除这条记录吗？')) return;
-   609|   609|      const records = getRecords().filter(r => r.id !== id);
-   610|   610|      saveRecords(records); loadData(); renderTriggerChart();
-   611|   611|      toast('已删除');
-   612|   612|    }
-   613|   613|    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-   614|   614|    function renderChartTabs() {
-   615|   615|      $('chartTabs').innerHTML = `<button class="tab active" data-action="switchChart" data-type="week">近7天</button><button class="tab" data-action="switchChart" data-type="month">近30天</button>`;
-   616|   616|    }
-   617|   617|    function switchChart(type, btn) {
-   618|   618|      if (!isPro && type === 'month') { showPaywall(); return toast('30天趋势是 Pro 功能'); }
-   619|   619|      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-   620|   620|      btn.classList.add('active');
-   621|   621|      renderChart(type);
-   622|   622|    }
-   623|   623|    function renderChart(type) {
-   624|   624|      const ctx = $('anxietyChart').getContext('2d');
-   625|   625|      const records = getRecords();
-   626|   626|      const days = type === 'week' ? 7 : 30;
-   627|   627|      const labels = [], data = [];
-   628|   628|      const now = new Date();
-   629|   629|      for (let i = days - 1; i >= 0; i--) {
-   630|   630|        const d = new Date(now); d.setDate(d.getDate() - i);
-   631|   631|        labels.push(`${d.getMonth()+1}/${d.getDate()}`);
-   632|   632|        const dayRecords = records.filter(r => { const rd = new Date(r.time); return rd.getFullYear() === d.getFullYear() && rd.getMonth() === d.getMonth() && rd.getDate() === d.getDate(); });
-   633|   633|        data.push(dayRecords.length ? dayRecords.reduce((s, r) => s + r.intensity, 0) / dayRecords.length : null);
-   634|   634|      }
-   635|   635|      if (chartInstance) chartInstance.destroy();
-   636|   636|      chartInstance = new Chart(ctx, {
-   637|   637|        type: 'line',
-   638|   638|        data: { labels, datasets: [{ label: '焦虑强度', data, borderColor: '#38bdf8', backgroundColor: (ctx) => { const {chart, chartArea} = ctx.chart; if (!chartArea) return null; const g = chart.ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom); g.addColorStop(0, 'rgba(56,189,248,0.4)'); g.addColorStop(1, 'rgba(56,189,248,0)'); return g; }, borderWidth: 3, pointRadius: 5, pointBackgroundColor: '#fff', pointBorderColor: '#38bdf8', fill: true, tension: 0.4, spanGaps: true }] },
-   639|   639|        options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.5)' } }, x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } } }, plugins: { legend: { display: false } } }
-   640|   640|      });
-   641|   641|    }
-   642|   642|    function renderTriggerChart() {
-   643|   643|      const ctx = $('triggerChart').getContext('2d');
-   644|   644|      const records = getRecords();
-   645|   645|      const counts = {};
-   646|   646|      records.forEach(r => r.triggers.forEach(t => counts[t] = (counts[t] || 0) + 1));
-   647|   647|      const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 6);
-   648|   648|      if (!sorted.length) { if (triggerChartInstance) triggerChartInstance.destroy(); return; }
-   649|   649|      const labels = sorted.map(([t]) => t); const data = sorted.map(([_, v]) => v);
-   650|   650|      const colors = ['#38bdf8', '#f43f5e', '#fbbf24', '#34d399', '#a78bfa', '#f472b6'];
-   651|   651|      if (triggerChartInstance) triggerChartInstance.destroy();
-   652|   652|      triggerChartInstance = new Chart(ctx, {
-   653|   653|        type: 'bar',
-   654|   654|        data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 8, borderWidth: 0 }] },
-   655|   655|        options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.5)' } }, x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } } }, plugins: { legend: { display: false } } }
-   656|   656|      });
-   657|   657|    }
-   658|   658|    function showPaywall() { $('paywall').scrollIntoView({ behavior: 'smooth' }); }
-   659|   659|    function selectPlan(plan) {
-   660|   660|      selectedPlan = plan;
-   661|   661|      event.currentTarget.classList.add('selected');
-   662|   662|      document.querySelectorAll('.price-box').forEach(b => { if (b !== event.currentTarget) b.classList.remove('selected'); });
-   663|   663|    }
-   664|   664|    function upgrade() {
-   665|   665|      if (!localStorage.getItem('anxiety_trial_start')) {
-   666|   666|        localStorage.setItem('anxiety_trial_start', Date.now());
-   667|   667|        localStorage.setItem('anxiety_pro', '1');
-   668|   668|        toast('已开启 7 天 Pro 试用');
-   669|   669|        setTimeout(() => location.reload(), 1200);
-   670|   670|      } else {
-   671|   671|        toast(`支付开发中：${selectedPlan === 'month' ? '¥9.9/月' : '¥69/年'}`);
-   672|   672|      }
-   673|   673|    }
-   674|   674|    function openModal(id) { $(id).classList.add('show'); }
-   675|   675|    function closeModal(id) { $(id).classList.remove('show'); }
-   676|   676|    function openSOS() { openModal('sosModal'); }
-   677|   677|    function openHotlines() { openModal('hotlineModal'); }
-   678|   678|    function openGrounding() { openModal('groundingModal'); }
-   679|   679|    function openCBT() { openModal('cbtModal'); }
-   680|   680|    function openDump() { openModal('dumpModal'); }
-   681|   681|    function openPMR() { openModal('pmrModal'); }
-   682|   682|    function openSleep() { openModal('sleepModal'); }
-   683|   683|    function openPrevention() { openModal('preventionModal'); }
-   684|   684|    function openBreathing() { openModal('breathingModal'); }
-   685|   685|    function startBreathing() {
-   686|   686|      const circle = $('breathCircle'); const text = $('breathText'); const sub = $('breathSub'); const btn = $('breathStartBtn');
-   687|   687|      btn.classList.add('hidden');
-   688|   688|      let cycles = 0; const maxCycles = 3;
-   689|   689|      function cycle() {
-   690|   690|        if (cycles >= maxCycles) { text.textContent = '完成'; sub.textContent = '你已经完成了 3 轮呼吸，感觉怎么样？'; btn.textContent = '再来 3 轮'; btn.classList.remove('hidden'); circle.className = 'breath-circle'; return; }
-   691|   691|        text.textContent = '吸气 4 秒'; sub.textContent = '用鼻子慢慢吸气，腹部鼓起'; circle.className = 'breath-circle inhale';
-   692|   692|        breathTimer = setTimeout(() => {
-   693|   693|          text.textContent = '屏息 7 秒'; sub.textContent = '保持自然，不要憋气'; circle.className = 'breath-circle hold';
-   694|   694|          breathTimer = setTimeout(() => {
-   695|   695|            text.textContent = '呼气 8 秒'; sub.textContent = '用嘴巴缓慢呼气，肩膀放松'; circle.className = 'breath-circle exhale';
-   696|   696|            breathTimer = setTimeout(() => { cycles++; cycle(); }, 8000);
-   697|   697|          }, 7000);
-   698|   698|        }, 4000);
-   699|   699|      }
-   700|   700|      cycle();
-   701|   701|    }
-   702|   702|    function stopBreathing() { clearTimeout(breathTimer); }
-   703|   703|    function startPMR() {
-   704|   704|      const btn = $('pmrBtn');
-   705|   705|      btn.classList.add('hidden');
-   706|   706|      pmrIndex = 0;
-   707|   707|      runPMRStep();
-   708|   708|    }
-   709|   709|    function runPMRStep() {
-   710|   710|      if (pmrIndex >= PMR_STEPS.length) { finishPMR(); return; }
-   711|   711|      const step = PMR_STEPS[pmrIndex];
-   712|   712|      const progress = ((pmrIndex + 1) / PMR_STEPS.length) * 100;
-   713|   713|      $('pmrProgress').style.width = `${progress}%`;
-   714|   714|      $('pmrStepCount').textContent = `${pmrIndex + 1} / ${PMR_STEPS.length}`;
-   715|   715|      $('pmrCircle').textContent = step.name;
-   716|   716|      $('pmrText').textContent = `绷紧：${step.tense}`;
-   717|   717|      $('pmrSub').textContent = '保持 5 秒';
-   718|   718|      pmrTimer = setTimeout(() => {
-   719|   719|        $('pmrText').textContent = `放松：${step.relax}`;
-   720|   720|        $('pmrSub').textContent = '停留 10 秒';
-   721|   721|        pmrTimer = setTimeout(() => { pmrIndex++; runPMRStep(); }, 10000);
-   722|   722|      }, 5000);
-   723|   723|    }
-   724|   724|    function finishPMR() {
-   725|   725|      $('pmrCircle').textContent = '完成';
-   726|   726|      $('pmrText').textContent = '全身已经放松';
-   727|   727|      $('pmrSub').textContent = '你现在感觉怎么样？';
-   728|   728|      $('pmrBtn').textContent = '再来一次';
-   729|   729|      $('pmrBtn').classList.remove('hidden');
-   730|   730|      markCalmed('pmr');
-   731|   731|    }
-   732|   732|    function stopPMR() { clearTimeout(pmrTimer); }
-   733|   733|    function toggleCheck(el) {
-   734|   734|      const cb = el.querySelector('input');
-   735|   735|      cb.checked = !cb.checked;
-   736|   736|      el.classList.toggle('checked', cb.checked);
-   737|   737|    }
-   738|   738|    function startSleepBreathing() {
-   739|   739|      $('sleepBreath').classList.remove('hidden');
-   740|   740|      const circle = $('sleepCircle'); const text = $('sleepText'); const sub = $('sleepSub');
-   741|   741|      let cycles = 0;
-   742|   742|      function cycle() {
-   743|   743|        if (cycles >= 5) { text.textContent = '完成'; sub.textContent = '慢慢睁开眼睛，祝你好眠'; circle.className = 'breath-circle'; return; }
-   744|   744|        text.textContent = '吸气 4 秒'; sub.textContent = '慢慢吸气'; circle.className = 'breath-circle inhale';
-   745|   745|        sleepTimer = setTimeout(() => {
-   746|   746|          text.textContent = '呼气 6 秒'; sub.textContent = '更慢地呼气'; circle.className = 'breath-circle exhale';
-   747|   747|          sleepTimer = setTimeout(() => { cycles++; cycle(); }, 6000);
-   748|   748|        }, 4000);
-   749|   749|      }
-   750|   750|      cycle();
-   751|   751|    }
-   752|   752|    function markCalmed(tool) {
-   753|   753|      const records = getRecords();
-   754|   754|      if (records.length > 0) { records[0].calmed = true; if (tool) records[0].tools.push(tool); saveRecords(records); loadData(); }
-   755|   755|      toast('标记平复成功，你很棒');
-   756|   756|      closeModal('groundingModal');
-   757|   757|    }
-   758|   758|    function saveCBT() {
-   759|   759|      const thought = $('cbtThought').value.trim();
-   760|   760|      const probability = $('cbtProbability').value.trim();
-   761|   761|      const advice = $('cbtAdvice').value.trim();
-   762|   762|      const balance = $('cbtBalance').value.trim();
-   763|   763|      if (!thought) return toast('请至少写下最担心的想法');
-   764|   764|      if (checkCrisis(thought)) { openHotlines(); toast('检测到你的想法可能涉及危机，请查看求助热线'); return; }
-   765|   765|      const records = getRecords();
-   766|   766|      if (records.length > 0) { records[0].tools.push('cbt'); records[0].cbt = { thought, probability, advice, balance }; saveRecords(records); }
-   767|   767|      $('cbtThought').value = ''; $('cbtProbability').value = ''; $('cbtAdvice').value = ''; $('cbtBalance').value = '';
-   768|   768|      toast('认知重构已保存'); closeModal('cbtModal');
-   769|   769|    }
-   770|   770|    function emptyDump() { $('dumpText').value = ''; toast('已经倒空了'); closeModal('dumpModal'); }
-   771|   771|    function saveDump() {
-   772|   772|      const text = $('dumpText').value.trim();
-   773|   773|      if (!text) return toast('还没有内容');
-   774|   774|      if (checkCrisis(text)) { openHotlines(); toast('检测到你的文字可能涉及危机，请查看求助热线'); return; }
-   775|   775|      if (!isPro && getRecords().length >= 7) { showPaywall(); return toast('免费版记录上限 7 条'); }
-   776|   776|      const record = { id: Date.now(), intensity: 5, symptoms: [], triggers: [], note: text, time: Date.now(), tools: ['dump'], calmed: true };
-   777|   777|      const records = getRecords(); records.unshift(record); saveRecords(records); $('dumpText').value = ''; loadData(); renderTriggerChart();
-   778|   778|      toast('情绪倾倒已保存'); closeModal('dumpModal');
-   779|   779|    }
-   780|   780|    function exportPDF() {
-   781|   781|      if (!isPro) { showPaywall(); return toast('导出 PDF 是 Pro 功能'); }
-   782|   782|      const records = getRecords();
-   783|   783|      if (!records.length) return toast('没有数据');
-   784|   784|      const { jsPDF } = window.jspdf;
-   785|   785|      const doc = new jsPDF();
-   786|   786|      doc.setFontSize(18); doc.text('焦虑急救箱 - 发作报告', 14, 20);
-   787|   787|      doc.setFontSize(12); doc.text(`生成时间：${new Date().toLocaleString('zh-CN')}`, 14, 30);
-   788|   788|      doc.text(`累计发作：${records.length} 次 | 平均强度：${(records.reduce((s,r)=>s+r.intensity,0)/records.length).toFixed(1)}/10`, 14, 40);
-   789|   789|      let y = 55;
-   790|   790|      records.slice(0, 20).forEach(r => {
-   791|   791|        const date = new Date(r.time).toLocaleString('zh-CN');
-   792|   792|        doc.text(`${date}  | 强度 ${r.intensity}/10`, 14, y); y += 7;
-   793|   793|        if (r.symptoms.length) { doc.text(`症状：${r.symptoms.join('、')}`, 14, y); y += 7; }
-   794|   794|        if (r.triggers.length) { doc.text(`诱因：${r.triggers.join('、')}`, 14, y); y += 7; }
-   795|   795|        if (r.note) { const lines = doc.splitTextToSize(r.note, 180); doc.text(lines, 14, y); y += lines.length * 6 + 4; }
-   796|   796|        y += 4;
-   797|   797|        if (y > 270) { doc.addPage(); y = 20; }
-   798|   798|      });
-   799|   799|      doc.save('焦虑急救箱报告.pdf');
-   800|   800|      toast('PDF 已导出');
-   801|   801|    }
-   802|   802|    function exportJSON() {
-   803|   803|      const records = getRecords();
-   804|   804|      if (!records.length) return toast('没有数据');
-   805|   805|      const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
-   806|   806|      const url = URL.createObjectURL(blob);
-   807|   807|      const a = document.createElement('a'); a.href = url; a.download = `anxiety-kit-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
-   808|   808|      toast('已导出 JSON');
-   809|   809|    }
-   810|   810|    function resetData() {
-   811|   811|      if (confirm('确定清空所有数据吗？')) {
-   812|   812|        localStorage.removeItem('anxiety_records'); localStorage.removeItem('anxiety_pro'); localStorage.removeItem('anxiety_streak'); localStorage.removeItem('anxiety_last_record'); localStorage.removeItem('anxiety_trial_start');
-   813|   813|        toast('数据已重置'); setTimeout(() => location.reload(), 1000);
-   814|   814|      }
-   815|   815|    }
-   816|   816|    document.addEventListener('DOMContentLoaded', init);
-   817|   817|  </script>
-   818|   818|</body>
-   819|   819|</html>
-   820|   820|
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>焦虑急救箱 | 60秒，让自己回来</title>
+<meta name="description" content="焦虑、恐慌、失眠时，一键启动科学急救工具：呼吸、接地、认知重构、肌肉放松、情绪倾倒。本地存储，无需登录。">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+:root {
+--primary: #0ea5e9;
+--primary-light: #38bdf8;
+--primary-dark: #0284c7;
+--accent: #f43f5e;
+--accent-light: #fb7185;
+--success: #34d399;
+--warning: #fbbf24;
+--bg: #0b1120;
+--surface: rgba(255,255,255,0.07);
+--surface-solid: rgba(255,255,255,0.12);
+--card-border: rgba(255,255,255,0.12);
+--text: #ffffff;
+--text-secondary: rgba(255,255,255,0.65);
+--text-tertiary: rgba(255,255,255,0.45);
+--shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+--radius: 24px;
+--radius-sm: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { min-height: 100%; font-family: 'Noto Sans SC', -apple-system, sans-serif; color: var(--text); line-height: 1.6; overflow-x: hidden; }
+body { background: var(--bg); position: relative; }
+body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 20% 40%, rgba(14,165,233,0.22), transparent 60%), radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244,63,94,0.15), transparent 55%), radial-gradient(ellipse 70% 60% at 50% 90%, rgba(52,211,153,0.1), transparent 55%), linear-gradient(180deg, #0b1120 0%, #0f172a 100%); z-index: -2; pointer-events: none; }
+body::after { content: ''; position: fixed; inset: 0; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); opacity: 0.03; z-index: -1; pointer-events: none; }
+.container { max-width: 860px; margin: 0 auto; padding: 20px; padding-bottom: 100px; }
+header { text-align: center; padding: 28px 0 20px; }
+.brand { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 12px; animation: float 6s ease-in-out infinite; }
+.logo { width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 0 30px rgba(14,165,233,0.4); border: 1px solid rgba(255,255,255,0.2); }
+.brand h1 { font-size: 1.8rem; font-weight: 900; }
+.tagline { color: var(--text-secondary); font-size: 0.95rem; }
+.plan-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--card-border); color: var(--primary-light); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-top: 12px; transition: all 0.2s; }
+.plan-badge:hover { background: var(--surface-solid); }
+.plan-badge.pro { color: #fbbf24; border-color: rgba(251,191,36,0.3); }
+.sos-btn { width: 100%; padding: 28px; background: linear-gradient(135deg, var(--accent) 0%, #be123c 100%); border: none; border-radius: var(--radius); color: white; font-size: 1.4rem; font-weight: 900; cursor: pointer; margin-bottom: 20px; box-shadow: 0 12px 40px rgba(244,63,94,0.4); transition: all 0.2s; position: relative; overflow: hidden; }
+.sos-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(244,63,94,0.5); }
+.sos-btn:active { transform: translateY(0); }
+.sos-btn small { display: block; font-size: 0.85rem; font-weight: 500; margin-top: 6px; opacity: 0.9; }
+.sos-btn::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%); animation: pulse 3s ease-in-out infinite; }
+.quick-tools { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+.quick-card { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 18px; cursor: pointer; transition: all 0.2s; text-align: center; backdrop-filter: blur(20px); }
+.quick-card:hover { background: var(--surface-solid); transform: translateY(-3px); }
+.quick-card .emoji { font-size: 2rem; margin-bottom: 8px; }
+.quick-card .title { font-weight: 700; font-size: 0.95rem; }
+.quick-card .desc { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+.quick-card.locked { opacity: 0.6; position: relative; }
+.quick-card.locked::after { content: '👑'; position: absolute; top: 8px; right: 8px; font-size: 0.85rem; }
+.card { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; backdrop-filter: blur(20px); box-shadow: var(--shadow); }
+.card-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+.card-title span { font-size: 1.3rem; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 16px 8px; text-align: center; }
+.stat-value { font-size: 1.5rem; font-weight: 900; color: var(--primary-light); }
+.stat-label { font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
+.tabs { display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+.tab { padding: 8px 18px; border-radius: 20px; background: var(--surface); border: 1px solid var(--card-border); color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+.tab.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-color: transparent; }
+.chart-wrap { position: relative; height: 240px; }
+.form-group { margin-bottom: 18px; }
+.form-label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; display: block; font-weight: 500; }
+.intensity-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; }
+.slider-track { height: 8px; border-radius: 4px; background: var(--surface-solid); position: relative; }
+input[type=range] { -webkit-appearance: none; width: 100%; height: 8px; background: transparent; position: absolute; top: 0; left: 0; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-light), var(--primary)); border: 2px solid white; box-shadow: 0 0 16px rgba(14,165,233,0.5); margin-top: -8px; }
+.symptom-grid, .trigger-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.chip { background: var(--surface); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 6px; text-align: center; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; color: var(--text-secondary); }
+.chip:hover { background: var(--surface-solid); color: var(--text); }
+.chip.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-color: transparent; }
+textarea { width: 100%; min-height: 100px; padding: 14px; background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); font-size: 1rem; color: var(--text); resize: vertical; font-family: inherit; }
+textarea::placeholder { color: var(--text-tertiary); }
+textarea:focus { outline: none; border-color: var(--primary-light); }
+.btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 24px rgba(14,165,233,0.35); }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(14,165,233,0.45); }
+.btn-secondary { background: transparent; color: var(--primary-light); border: 1px solid var(--primary-light); box-shadow: none; }
+.btn-secondary:hover { background: rgba(14,165,233,0.1); }
+.btn-gold { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #0f172a; box-shadow: 0 8px 24px rgba(251,191,36,0.35); }
+.btn-row { display: flex; gap: 10px; }
+.btn-row .btn { flex: 1; }
+.btn-small { padding: 8px 14px; font-size: 0.8rem; border-radius: 10px; }
+.paywall { background: linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.9) 100%); border: 1px solid rgba(14,165,233,0.3); border-radius: var(--radius); padding: 28px; text-align: center; margin-bottom: 20px; box-shadow: var(--shadow), 0 0 60px rgba(14,165,233,0.15); }
+.paywall h3 { font-size: 1.4rem; margin-bottom: 10px; }
+.paywall > p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
+.price-wrap { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.price-box { background: var(--surface); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 24px; min-width: 130px; cursor: pointer; transition: all 0.2s; }
+.price-box:hover, .price-box.selected { background: rgba(14,165,233,0.15); border-color: var(--primary-light); }
+.price-box .price { font-size: 1.7rem; font-weight: 900; }
+.price-box .price span { font-size: 0.8rem; color: var(--text-secondary); }
+.price-box .period { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px; }
+.features { text-align: left; display: inline-block; margin: 16px 0; list-style: none; }
+.features li { margin-bottom: 10px; font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
+.features li svg { width: 18px; height: 18px; color: var(--success); flex-shrink: 0; }
+.ad-banner { background: var(--surface); border: 1px dashed var(--card-border); border-radius: var(--radius-sm); padding: 16px; text-align: center; color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 20px; }
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+.history-item { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 14px; transition: all 0.2s; }
+.history-item:hover { background: var(--surface-solid); }
+.history-meta { font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
+.history-meta span { background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 10px; }
+.history-text { font-size: 0.9rem; color: var(--text); line-height: 1.6; }
+.history-actions { display: flex; gap: 8px; margin-top: 10px; }
+.history-actions button { background: transparent; border: 1px solid var(--card-border); color: var(--text-tertiary); padding: 5px 12px; border-radius: 10px; font-size: 0.75rem; cursor: pointer; }
+.history-actions button:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+.empty-state .emoji { font-size: 3rem; margin-bottom: 12px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(11,17,32,0.92); z-index: 900; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal { background: var(--surface); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; backdrop-filter: blur(20px); }
+.modal-wide { max-width: 640px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-header h3 { font-size: 1.2rem; }
+.modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.6rem; cursor: pointer; }
+.modal-close:hover { color: var(--text); }
+.breath-container { text-align: center; padding: 20px 0; }
+.breath-circle { width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light)); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 900; box-shadow: 0 0 50px rgba(14,165,233,0.4); }
+.breath-circle.inhale { animation: breatheIn 4s ease-in-out forwards; }
+.breath-circle.hold { animation: breatheHold 7s ease-in-out forwards; }
+.breath-circle.exhale { animation: breatheExhale 8s ease-in-out forwards; }
+.breath-text { font-size: 1.1rem; color: var(--primary-light); margin-bottom: 8px; }
+.breath-sub { font-size: 0.85rem; color: var(--text-secondary); }
+.grounding-list, .tool-list { display: flex; flex-direction: column; gap: 12px; }
+.grounding-item, .tool-item { background: var(--surface-solid); border-radius: 12px; padding: 16px; }
+.grounding-item strong, .tool-item strong { color: var(--primary-light); display: block; margin-bottom: 4px; }
+.grounding-item p, .tool-item p { color: var(--text-secondary); font-size: 0.9rem; }
+.cbt-card { background: var(--surface-solid); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.cbt-card h4 { color: var(--primary-light); font-size: 0.95rem; margin-bottom: 8px; }
+.cbt-card p { color: var(--text); font-size: 0.9rem; line-height: 1.7; }
+.cbt-card .input { width: 100%; padding: 10px; background: var(--surface); border: 1px solid var(--card-border); border-radius: 10px; color: var(--text); margin-top: 8px; font-family: inherit; }
+.tool-detail { background: var(--surface-solid); border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
+.tool-detail:hover { background: rgba(255,255,255,0.15); }
+.tool-detail h4 { color: var(--primary-light); font-size: 0.95rem; margin-bottom: 4px; }
+.tool-detail p { color: var(--text-secondary); font-size: 0.85rem; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15,23,42,0.95); color: white; padding: 14px 28px; border-radius: 30px; font-size: 0.9rem; z-index: 1100; opacity: 0; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.progress-bar { height: 6px; background: var(--surface-solid); border-radius: 3px; overflow: hidden; margin: 16px 0; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: 3px; transition: width 0.5s; }
+.step-count { font-size: 0.75rem; color: var(--text-tertiary); text-align: center; margin-bottom: 8px; }
+.crisis-banner { background: linear-gradient(135deg, rgba(244,63,94,0.2), rgba(190,18,60,0.15)); border: 1px solid rgba(244,63,94,0.4); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px; }
+.crisis-banner h4 { color: var(--accent-light); margin-bottom: 6px; }
+.crisis-banner p { color: var(--text-secondary); font-size: 0.85rem; }
+.checklist { display: flex; flex-direction: column; gap: 10px; }
+.check-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--surface-solid); border-radius: 10px; cursor: pointer; }
+.check-item input { width: 18px; height: 18px; accent-color: var(--primary); }
+.check-item.checked { opacity: 0.6; text-decoration: line-through; }
+.hidden { display: none !important; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 0.3; } }
+@keyframes breatheIn { from { transform: scale(1); } to { transform: scale(1.3); box-shadow: 0 0 70px rgba(14,165,233,0.6); } }
+@keyframes breatheHold { from { transform: scale(1.3); } to { transform: scale(1.3); } }
+@keyframes breatheExhale { from { transform: scale(1.3); } to { transform: scale(1); } }
+@media (max-width: 600px) {
+.container { padding: 16px; padding-bottom: 80px; }
+.brand h1 { font-size: 1.5rem; }
+.sos-btn { font-size: 1.2rem; padding: 24px; }
+.quick-tools { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.quick-card { padding: 14px 8px; }
+.stats-grid { grid-template-columns: repeat(2, 1fr); }
+.symptom-grid, .trigger-grid { grid-template-columns: repeat(2, 1fr); }
+.price-wrap { flex-direction: column; }
+.price-box { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div class="brand">
+<div class="logo">🧘</div>
+<h1>焦虑急救箱</h1>
+</div>
+<p class="tagline">60秒，让自己回来</p>
+<span class="plan-badge" id="planBadge" data-action="showPaywall">免费版</span>
+</header>
+
+<button class="sos-btn" data-action="openSOS">
+🆘 一键 SOS 急救
+<small>恐慌/焦虑发作时，立即开始平复</small>
+</button>
+
+<div class="quick-tools">
+<div class="quick-card" data-action="openBreathing"><div class="emoji">🫁</div><div class="title">快速呼吸</div><div class="desc">4-7-8 呼吸法</div></div>
+<div class="quick-card" data-action="openGrounding"><div class="emoji">🧊</div><div class="title">5-4-3-2-1</div><div class="desc"> grounding 接地练习</div></div>
+<div class="quick-card" data-action="openCBT"><div class="emoji">💭</div><div class="title">认知重构</div><div class="desc">区分想法与事实</div></div>
+<div class="quick-card" data-action="openDump"><div class="emoji">📝</div><div class="title">情绪倾倒</div><div class="desc">把想法全部倒出</div></div>
+<div class="quick-card" data-action="openPMR"><div class="emoji">🧘‍♂️</div><div class="title">肌肉放松</div><div class="desc">渐进式身体放松</div></div>
+<div class="quick-card" data-action="openSleep" id="sleepCard"><div class="emoji">🌙</div><div class="title">睡眠仪式</div><div class="desc">睡前放松练习</div></div>
+<div class="quick-card locked" data-action="openPrevention"><div class="emoji">🛡️</div><div class="title">预防计划</div><div class="desc">每日降低焦虑</div></div>
+<div class="quick-card locked" data-action="showPaywall"><div class="emoji">📊</div><div class="title">PDF 报告</div><div class="desc">给医生/咨询师</div></div>
+</div>
+
+<div class="stats-grid" id="statsGrid">
+<div class="stat"><div class="stat-value" id="totalAttacks">0</div><div class="stat-label">累计发作</div></div>
+<div class="stat"><div class="stat-value" id="avgIntensity">-</div><div class="stat-label">平均强度</div></div>
+<div class="stat"><div class="stat-value" id="calmCount">0</div><div class="stat-label">已平复</div></div>
+<div class="stat"><div class="stat-value" id="streakDays">0</div><div class="stat-label">连续干预</div></div>
+</div>
+
+<div class="card" id="recordCard">
+<div class="card-title"><span>📝</span> 记录一次焦虑/恐慌</div>
+<div class="form-group">
+<span class="form-label">现在的焦虑强度是多少？</span>
+<div class="intensity-labels"><span>轻微</span><span id="intensityValue">5/10</span><span>极度恐慌</span></div>
+<div class="slider-track"><input type="range" id="intensity" min="1" max="10" value="5" oninput="updateIntensity()"></div>
+</div>
+<div class="form-group">
+<span class="form-label">你出现了哪些症状？（可多选）</span>
+<div class="symptom-grid" id="symptomGrid"></div>
+</div>
+<div class="form-group">
+<span class="form-label">触发因素是什么？（可多选）</span>
+<div class="trigger-grid" id="triggerGrid"></div>
+</div>
+<div class="form-group">
+<span class="form-label">此刻你在想什么？</span>
+<textarea id="note" placeholder="例如：我心跳很快，感觉自己要失控了，很害怕..."></textarea>
+</div>
+<div class="btn-row">
+<button class="btn" data-action="saveRecord" style="flex:2;">记录并启动急救</button>
+<button class="btn btn-secondary" data-action="openSOS" style="flex:1;">仅急救</button>
+</div>
+</div>
+
+<div class="paywall" id="paywall">
+<h3>升级焦虑急救箱 Pro</h3>
+<p>完整追踪、预测焦虑模式，把控制权拿回来</p>
+<div class="price-wrap">
+<div class="price-box selected" data-action="selectPlan" data-plan="month">
+<div class="price">¥9.9<span>/月</span></div>
+<div class="period">按月订阅</div>
+</div>
+<div class="price-box" data-action="selectPlan" data-plan="year">
+<div class="price">¥69<span>/年</span></div>
+<div class="period">立省 ¥49.8</div>
+</div>
+</div>
+<ul class="features">
+<li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 无限记录焦虑发作</li>
+<li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 发作频率/诱因分析</li>
+<li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 高级 CBT 认知重构练习</li>
+<li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 每日预防计划与提醒</li>
+<li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 导出 PDF 给医生/咨询师</li>
+<li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> 无广告，隐私锁</li>
+</ul>
+<button class="btn btn-gold" data-action="upgrade">立即升级 Pro</button>
+<p id="trialHint" style="margin-top:14px; font-size:0.75rem; color:var(--text-tertiary);">支付需对接微信/Stripe，当前为演示占位</p>
+</div>
+
+<div class="ad-banner" id="adBanner">📢 广告位：可接入百度联盟 / Google AdSense</div>
+
+<div class="card" id="chartCard">
+<div class="card-title"><span>📈</span> 焦虑趋势</div>
+<div class="tabs" id="chartTabs"></div>
+<div class="chart-wrap"><canvas id="anxietyChart"></canvas></div>
+</div>
+
+<div class="card" id="triggerCard">
+<div class="card-title"><span>🎯</span> 常见诱因</div>
+<div class="chart-wrap" style="height:200px;"><canvas id="triggerChart"></canvas></div>
+</div>
+
+<div class="card" id="historyCard">
+<div class="card-title"><span>🕘</span> 最近记录</div>
+<div class="history-list" id="historyList"></div>
+</div>
+
+<footer>
+<p>焦虑急救箱 · 紧急情况请拨打 120 或前往医院</p>
+<p style="margin-top:8px;"><a href="#" data-action="resetData">重置本地数据</a> · <a href="#" data-action="openHotlines">求助热线</a> · <a href="#" data-action="exportJSON">导出数据</a></p>
+</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="sosModal">
+<div class="modal">
+<div class="modal-header"><h3>🆘 SOS 急救流程</h3><button class="modal-close" data-action="closeSOS">×</button></div>
+<div id="sosBody">
+<p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">选择一个最适合你此刻状态的工具：</p>
+<div class="tool-detail" data-action="sosToBreathing"><h4>🫁 4-7-8 呼吸法</h4><p>最适合：心跳加速、呼吸急促、身体紧绷</p></div>
+<div class="tool-detail" data-action="sosToGrounding"><h4>🧊 5-4-3-2-1 grounding</h4><p>最适合：感觉不真实、失控、要逃离</p></div>
+<div class="tool-detail" data-action="sosToPMR"><h4>🧘‍♂️ 渐进式肌肉放松</h4><p>最适合：全身紧绷、肩颈僵硬、无法入睡</p></div>
+<div class="tool-detail" data-action="sosToCBT"><h4>💭 认知重构</h4><p>最适合：灾难化想法、反复担忧、停不下来</p></div>
+<div class="tool-detail" data-action="sosToDump"><h4>📝 情绪倾倒</h4><p>最适合：脑子里一团乱、想大声喊出来</p></div>
+<div class="tool-detail" data-action="sosToHotlines"><h4>📞 危机热线</h4><p>如果念头控制不住，请立即联系专业帮助</p></div>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="breathingModal">
+<div class="modal">
+<div class="modal-header"><h3>🫁 4-7-8 呼吸法</h3><button class="modal-close" data-action="closeBreathing">×</button></div>
+<div class="breath-container">
+<div class="breath-circle" id="breathCircle">吸气</div>
+<div class="breath-text" id="breathText">准备开始...</div>
+<div class="breath-sub" id="breathSub">跟着圆球的节奏，慢慢呼吸</div>
+<button class="btn" data-action="startBreathing" id="breathStartBtn" style="margin-top:20px;">开始练习</button>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="groundingModal">
+<div class="modal">
+<div class="modal-header"><h3>🧊 5-4-3-2-1 grounding</h3><button class="modal-close" data-action="closeGrounding">×</button></div>
+<p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">用感官把你拉回当下。不需要全部完成，做到你能做的就好。</p>
+<div class="grounding-list">
+<div class="grounding-item"><strong>5 样你能看到的东西</strong><p>环顾四周，说出 5 个物体的名字。比如：墙、灯、桌子、手机、我的手。</p></div>
+<div class="grounding-item"><strong>4 样你能触摸到的东西</strong><p>感受衣服、桌面、手机屏幕或你的皮肤。注意它们的温度、质地。</p></div>
+<div class="grounding-item"><strong>3 样你能听到的声音</strong><p>空调声、车流声、自己的呼吸。慢慢辨认它们。</p></div>
+<div class="grounding-item"><strong>2 样你能闻到的气味</strong><p>咖啡、香水、洗手液，或者深呼吸空气本身的味道。</p></div>
+<div class="grounding-item"><strong>1 样你能尝到的味道</strong><p>喝一口水，或抿一下嘴唇。把注意力放在这个简单的味觉上。</p></div>
+</div>
+<button class="btn" data-action="markCalmed" data-tool="grounding" style="margin-top:16px;">我感觉好点了</button>
+</div>
+</div>
+
+<div class="modal-overlay" id="cbtModal">
+<div class="modal">
+<div class="modal-header"><h3>💭 认知重构</h3><button class="modal-close" data-action="closeCBT">×</button></div>
+<p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">焦虑常常来自"灾难化想法"。试着把它们写下来，看看事实是什么。</p>
+<div class="cbt-card"><h4>1. 我现在最担心的想法是？</h4><input class="input" id="cbtThought" placeholder="例如：我心脏病要发作了"></div>
+<div class="cbt-card"><h4>2. 这个想法发生的可能性有多大？</h4><input class="input" id="cbtProbability" placeholder="0-100%"></div>
+<div class="cbt-card"><h4>3. 如果朋友有这个想法，我会对他说什么？</h4><input class="input" id="cbtAdvice" placeholder="例如：你已经检查过身体，医生说是焦虑"></div>
+<div class="cbt-card"><h4>4. 更平衡的想法可能是？</h4><input class="input" id="cbtBalance" placeholder="例如：我很不舒服，但这是焦虑反应，会过去的"></div>
+<button class="btn" data-action="saveCBT" style="margin-top:8px;">保存这次重构</button>
+</div>
+</div>
+
+<div class="modal-overlay" id="dumpModal">
+<div class="modal">
+<div class="modal-header"><h3>📝 情绪倾倒</h3><button class="modal-close" data-action="closeDump">×</button></div>
+<p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">不加修改、不加评判，把所有想法、恐惧、愤怒都写在这里。写完后点"倒空"。</p>
+<textarea id="dumpText" style="min-height:160px;" placeholder="我很害怕... 我很生气... 我不应该..."></textarea>
+<div class="btn-row" style="margin-top:16px;">
+<button class="btn" data-action="emptyDump">🗑️ 倒空它</button>
+<button class="btn btn-secondary" data-action="saveDump">保存为日记</button>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="pmrModal">
+<div class="modal modal-wide">
+<div class="modal-header"><h3>🧘‍♂️ 渐进式肌肉放松</h3><button class="modal-close" data-action="closePMR">×</button></div>
+<p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">先用力绷紧某组肌肉 5 秒，然后突然放松，把注意力放在放松的感觉上。</p>
+<div class="progress-bar"><div class="progress-fill" id="pmrProgress" style="width:0%"></div></div>
+<div class="step-count" id="pmrStepCount">0 / 8</div>
+<div id="pmrBody">
+<div class="breath-container">
+<div class="breath-circle" id="pmrCircle" style="font-size:1.1rem;">准备</div>
+<div class="breath-text" id="pmrText">点击下方开始</div>
+<div class="breath-sub" id="pmrSub">一次只关注一组肌肉，不用追求完美</div>
+</div>
+</div>
+<button class="btn" id="pmrBtn" data-action="startPMR">开始练习</button>
+</div>
+</div>
+
+<div class="modal-overlay" id="sleepModal">
+<div class="modal modal-wide">
+<div class="modal-header"><h3>🌙 睡前仪式</h3><button class="modal-close" data-action="closeSleep">×</button></div>
+<p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">焦虑常在夜晚加重。用 10 分钟让身体知道：现在可以休息了。</p>
+<div class="checklist" id="sleepChecklist">
+<div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>📱 把手机放到 1 米外，屏幕朝下</span></div>
+<div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🌡️ 调低室温，让房间稍凉一点</span></div>
+<div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🫁 做 3 轮慢呼吸（吸 4 秒，呼 6 秒）</span></div>
+<div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🧘 从头到脚扫描身体，找到紧绷处并放松</span></div>
+<div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>📝 把明天的担忧写进「焦虑清单」，告诉自己：现在不处理</span></div>
+</div>
+<button class="btn" data-action="startSleepBreathing" style="margin-top:16px;">开始睡前呼吸</button>
+<div id="sleepBreath" class="hidden" style="margin-top:20px;text-align:center;">
+<div class="breath-circle" id="sleepCircle" style="width:120px;height:120px;font-size:1rem;">吸气</div>
+<div class="breath-text" id="sleepText">吸气 4 秒</div>
+<div class="breath-sub" id="sleepSub">呼气尽量比吸气长</div>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="preventionModal">
+<div class="modal modal-wide">
+<div class="modal-header"><h3>🛡️ 每日预防计划</h3><button class="modal-close" data-action="closePrevention">×</button></div>
+<div id="preventionBody">
+<p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">根据你今天的情况，选择一个当天的重点任务：</p>
+<div class="checklist" id="preventionList">
+<div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🌞 早晨 5 分钟呼吸练习</span></div>
+<div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>☕ 减少 1 杯咖啡或浓茶</span></div>
+<div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🚶 午间散步 10 分钟</span></div>
+<div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>🌙 睡前 30 分钟不用手机</span></div>
+<div class="check-item" data-action="toggleCheck"><input type="checkbox" onchange="event.stopPropagation()"><span>📝 记录 1 件今天值得认可的小事</span></div>
+</div>
+<div class="crisis-banner" style="margin-top:16px;">
+<h4>📌 Pro 进阶计划</h4>
+<p>根据你的发作记录，预测高风险时段，提前推送提醒。升级 Pro 解锁完整计划。</p>
+</div>
+</div>
+<button class="btn btn-gold" data-action="showPaywall" style="margin-top:8px;">升级 Pro 查看个性化计划</button>
+</div>
+</div>
+
+<div class="modal-overlay" id="hotlineModal">
+<div class="modal">
+<div class="modal-header"><h3>📞 求助热线</h3><button class="modal-close" data-action="closeHotlines">×</button></div>
+<div class="crisis-banner">
+<h4>⚠️ 如果你正在考虑伤害自己</h4>
+<p>请立即拨打 120 或 110，或联系身边可信的人。焦虑会过去，但你不需要一个人扛。</p>
+</div>
+<div class="grounding-list">
+<div class="grounding-item"><strong>全国 24 小时心理援助热线：010-82951332</strong><p>北京回龙观医院心理危机干预中心</p></div>
+<div class="grounding-item"><strong>北京心理危机研究与干预中心：010-82951332</strong><p>24 小时服务</p></div>
+<div class="grounding-item"><strong>上海心理援助热线：021-12320-5</strong><p>工作日 8:00-22:00</p></div>
+<div class="grounding-item"><strong>广州市心理危机干预中心：020-81899120</strong><p>24 小时服务</p></div>
+<div class="grounding-item"><strong>深圳市心理援助热线：0755-25629459</strong><p>24 小时服务</p></div>
+<div class="grounding-item"><strong>紧急情况请直接拨打 120 或 110</strong><p>如果出现自伤/自杀念头，请立即寻求身边人或专业帮助。</p></div>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="panicTextModal">
+<div class="modal">
+<div class="modal-header"><h3>🗣️ 对自己说这些话</h3><button class="modal-close" data-action="closePanicText">×</button></div>
+<p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.95rem;">惊恐发作时，身体正在误判危险。这些话不是鸡汤，是事实。</p>
+<div class="tool-list">
+<div class="tool-item"><strong>这是焦虑反应，不是危险。</strong><p>我的心跳快、呼吸急，是肾上腺素在作用，它会自己代谢掉。</p></div>
+<div class="tool-item"><strong>我已经经历过，它过去了。</strong><p>每一次惊恐发作都结束了，这次也不会例外。</p></div>
+<div class="tool-item"><strong>我不需要逃离，我需要待在这里。</strong><p>逃离会告诉大脑"这里很危险"，待住会让大脑重新学习。</p></div>
+<div class="tool-item"><strong>把注意力放在呼吸上，而不是念头。</strong><p>念头不是命令，我可以看着它们，不被它们拉走。</p></div>
+<div class="tool-item"><strong>我此刻是安全的。</strong><p>即使身体不舒服，我也没有真正危险。</p></div>
+</div>
+<button class="btn" data-action="panicToBreathing" style="margin-top:16px;">开始呼吸练习</button>
+</div>
+</div>
+
+<script>
+const SYMPTOMS = ['心跳加速', '呼吸困难', '头晕', '出汗', '发抖', '恶心', '胸闷', '手脚发麻', '耳鸣', '不真实感', '濒死感', '失控感'];
+const TRIGGERS = ['工作压力', '人际冲突', '健康担忧', '财务问题', '睡眠不足', '咖啡因/酒精', '密闭空间', '人群/社交', '突发消息', '未来不确定'];
+const PMR_STEPS = [
+{ name: '双手', tense: '握紧双拳，感受手指和手掌的紧张', relax: '慢慢松开，感受手指变暖、变重' },
+{ name: '手臂', tense: '弯曲手臂，绷紧二头肌', relax: '让手臂自然垂下，血液重新流动' },
+{ name: '肩膀', tense: '耸起肩膀，靠近耳朵', relax: '肩膀突然落下，感受颈部变长' },
+{ name: '面部', tense: '皱紧眉头、闭眼、抿嘴', relax: '放松整张脸，让额头和下巴变软' },
+{ name: '腹部', tense: '收紧腹部，像要被碰到', relax: '腹部放松，让呼吸自然进入腹部' },
+{ name: '臀部/腿部', tense: '收紧臀部，大腿用力', relax: '让腿变沉，陷进椅子或床' },
+{ name: '双脚', tense: '脚尖向上勾，绷紧小腿', relax: '脚放下，感受地面的支撑' },
+{ name: '全身', tense: '全身一起轻轻绷紧', relax: '全部呼出，像一摊泥一样沉下去' }
+];
+let selectedSymptoms = new Set();
+let selectedTriggers = new Set();
+let isPro = false;
+let trialDays = 0;
+let selectedPlan = 'month';
+let chartInstance = null;
+let triggerChartInstance = null;
+let breathTimer = null;
+let pmrTimer = null;
+let pmrIndex = 0;
+let sleepTimer = null;
+const $ = id => document.getElementById(id);
+const toast = msg => {
+const el = $('toast');
+el.textContent = msg;
+el.classList.add('show');
+setTimeout(() => el.classList.remove('show'), 2500);
+};
+function bindActions() {
+document.querySelectorAll('[data-action]').forEach(el => {
+  const action = el.dataset.action;
+  el.addEventListener('click', e => {
+    if (action === 'toggleChip') { toggleChip(el.dataset.type, el.dataset.value); return; }
+    if (action === 'markCalmedById') { markCalmedById(parseInt(el.dataset.id)); return; }
+    if (action === 'deleteRecord') { deleteRecord(parseInt(el.dataset.id)); return; }
+    if (action === 'sosToBreathing') { closeModal('sosModal'); openBreathing(); }
+    else if (action === 'sosToGrounding') { closeModal('sosModal'); openGrounding(); }
+    else if (action === 'sosToPMR') { closeModal('sosModal'); openPMR(); }
+    else if (action === 'sosToCBT') { closeModal('sosModal'); openCBT(); }
+    else if (action === 'sosToDump') { closeModal('sosModal'); openDump(); }
+    else if (action === 'sosToHotlines') { closeModal('sosModal'); openHotlines(); }
+    else if (action === 'showPaywall') showPaywall();
+    else if (action === 'openSOS') openSOS();
+    else if (action === 'openBreathing') openBreathing();
+    else if (action === 'openGrounding') openGrounding();
+    else if (action === 'openCBT') openCBT();
+    else if (action === 'openDump') openDump();
+    else if (action === 'openPMR') openPMR();
+    else if (action === 'openSleep') openSleep();
+    else if (action === 'openPrevention') openPrevention();
+    else if (action === 'openHotlines') openHotlines();
+    else if (action === 'saveRecord') saveRecord();
+    else if (action === 'updateIntensity') updateIntensity();
+    else if (action === 'selectPlan') { document.querySelectorAll('.price-box').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); selectedPlan = el.dataset.plan; }
+    else if (action === 'upgrade') upgrade();
+    else if (action === 'switchChart') switchChart(el.dataset.type, el);
+    else if (action === 'markCalmed') markCalmed(el.dataset.tool);
+    else if (action === 'saveCBT') saveCBT();
+    else if (action === 'emptyDump') emptyDump();
+    else if (action === 'saveDump') saveDump();
+    else if (action === 'startBreathing') startBreathing();
+    else if (action === 'closeBreathing') { stopBreathing(); closeModal('breathingModal'); }
+    else if (action === 'closeSOS') closeModal('sosModal');
+    else if (action === 'closeGrounding') closeModal('groundingModal');
+    else if (action === 'closeCBT') closeModal('cbtModal');
+    else if (action === 'closeDump') closeModal('dumpModal');
+    else if (action === 'closePMR') { stopPMR(); closeModal('pmrModal'); }
+    else if (action === 'closeSleep') closeModal('sleepModal');
+    else if (action === 'closePrevention') closeModal('preventionModal');
+    else if (action === 'closeHotlines') closeModal('hotlineModal');
+    else if (action === 'closePanicText') closeModal('panicTextModal');
+    else if (action === 'panicToBreathing') { closeModal('panicTextModal'); openBreathing(); }
+    else if (action === 'startPMR') startPMR();
+    else if (action === 'startSleepBreathing') startSleepBreathing();
+    else if (action === 'toggleCheck') toggleCheck(el);
+    else if (action === 'resetData') { e.preventDefault(); resetData(); }
+    else if (action === 'exportJSON') { e.preventDefault(); exportJSON(); }
+  });
+});
+}
+
+function init() {
+renderSymptoms();
+renderTriggers();
+renderChartTabs();
+loadPlan();
+loadData();
+renderTriggerChart();
+updateLockedCards();
+bindActions();
+}
+function loadPlan() {
+isPro = localStorage.getItem('anxiety_pro') === '1';
+const trialStart = parseInt(localStorage.getItem('anxiety_trial_start') || '0');
+if (trialStart) {
+const elapsed = Math.floor((Date.now() - trialStart) / (86400000));
+trialDays = Math.max(0, 7 - elapsed);
+if (trialDays > 0) isPro = true;
+}
+const badge = $('planBadge');
+badge.textContent = isPro ? 'Pro 版' : '免费版';
+badge.classList.toggle('pro', isPro);
+if (isPro) {
+$('paywall').classList.add('hidden');
+$('adBanner').classList.add('hidden');
+}
+const trialHint = $('trialHint');
+if (trialHint) trialHint.textContent = trialDays > 0 ? `Pro 试用还剩 ${trialDays} 天` : '支付需对接微信/Stripe，当前为演示占位';
+}
+function updateLockedCards() {
+document.querySelectorAll('.quick-card.locked').forEach(c => {
+if (isPro) { c.classList.remove('locked'); c.querySelector('.title').style.opacity = '1'; }
+});
+}
+function renderSymptoms() {
+$('symptomGrid').innerHTML = SYMPTOMS.map(s => `<div class="chip" data-action="toggleChip" data-type="symptom" data-value="${s}">${s}</div>`).join('');
+}
+function renderTriggers() {
+$('triggerGrid').innerHTML = TRIGGERS.map(t => `<div class="chip" data-action="toggleChip" data-type="trigger" data-value="${t}">${t}</div>`).join('');
+}
+function toggleChip(type, value) {
+const set = type === 'symptom' ? selectedSymptoms : selectedTriggers;
+if (set.has(value)) set.delete(value); else set.add(value);
+document.querySelectorAll(`.chip[data-type="${type}"]`).forEach(c => { c.classList.toggle('active', set.has(c.dataset.value)); });
+}
+function updateIntensity() { $('intensityValue').textContent = `${$('intensity').value}/10`; }
+function getRecords() {
+try { return JSON.parse(localStorage.getItem('anxiety_records') || '[]'); }
+catch (e) { return []; }
+}
+function saveRecords(records) { localStorage.setItem('anxiety_records', JSON.stringify(records)); }
+function checkCrisis(text) {
+if (!text) return false;
+const crisisWords = ['自杀', '自残', '不想活', '不想活了', '结束生命', 'kill myself', '想死', '活着没意思', '死了算了'];
+return crisisWords.some(w => text.includes(w));
+}
+function saveRecord() {
+const intensity = parseInt($('intensity').value);
+const note = $('note').value.trim();
+if (checkCrisis(note)) {
+openHotlines();
+toast('检测到你的文字可能涉及危机，请查看求助热线');
+return;
+}
+if (!isPro && getRecords().length >= 7) { showPaywall(); return toast('免费版最多保存 7 条记录，升级 Pro 解锁无限'); }
+const record = { id: Date.now(), intensity, symptoms: Array.from(selectedSymptoms), triggers: Array.from(selectedTriggers), note, time: Date.now(), tools: [], calmed: false };
+const records = getRecords();
+records.unshift(record);
+saveRecords(records);
+updateStreak();
+resetForm();
+loadData();
+renderTriggerChart();
+toast('已记录');
+openSOS();
+}
+function resetForm() {
+$('intensity').value = 5;
+updateIntensity();
+selectedSymptoms.clear();
+selectedTriggers.clear();
+document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+$('note').value = '';
+}
+function updateStreak() {
+const lastDate = localStorage.getItem('anxiety_last_record');
+const today = new Date().toDateString();
+if (lastDate === today) return;
+let streak = parseInt(localStorage.getItem('anxiety_streak') || '0');
+if (lastDate) {
+const last = new Date(lastDate);
+const diff = (new Date(today) - last) / (1000 * 60 * 60 * 24);
+if (diff > 1.5) streak = 0;
+}
+streak++;
+localStorage.setItem('anxiety_streak', streak);
+localStorage.setItem('anxiety_last_record', today);
+}
+function getStreak() {
+const lastDate = localStorage.getItem('anxiety_last_record');
+const today = new Date().toDateString();
+const yesterday = new Date(Date.now() - 86400000).toDateString();
+let streak = parseInt(localStorage.getItem('anxiety_streak') || '0');
+if (!lastDate) return 0;
+if (lastDate !== today && lastDate !== yesterday) return 0;
+return streak;
+}
+function loadData() {
+const records = getRecords();
+const visible = isPro ? records : records.slice(0, 7);
+renderStats(visible);
+renderHistory(visible);
+renderChart('week');
+}
+function renderStats(records) {
+if (!records.length) {
+$('totalAttacks').textContent = '0'; $('avgIntensity').textContent = '-'; $('calmCount').textContent = '0'; $('streakDays').textContent = '0';
+return;
+}
+$('totalAttacks').textContent = records.length;
+$('avgIntensity').textContent = (records.reduce((s, r) => s + r.intensity, 0) / records.length).toFixed(1);
+$('calmCount').textContent = records.filter(r => r.calmed).length;
+$('streakDays').textContent = getStreak();
+}
+function renderHistory(records) {
+const list = $('historyList');
+if (!records.length) { list.innerHTML = '<div class="empty-state"><div class="emoji">📝</div><p>还没有记录</p><small>焦虑发作时记录一下，你会慢慢看见规律</small></div>'; return; }
+list.innerHTML = records.slice(0, 10).map(r => {
+const date = new Date(r.time);
+const timeStr = `${date.getMonth()+1}月${date.getDate()}日 ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+const color = r.intensity >= 7 ? '#f43f5e' : r.intensity >= 4 ? '#fbbf24' : '#34d399';
+return `<div class="history-item"><div class="history-meta"><span style="color:${color};font-weight:700;">强度 ${r.intensity}/10</span><span>${timeStr}</span>${r.calmed ? '<span style="color:#34d399;">✓ 已平复</span>' : ''}</div><div class="history-text">${r.note ? escapeHtml(r.note) : '无文字记录'}</div>${r.symptoms.length ? `<div style="margin-top:8px;">${r.symptoms.map(s => `<span style="display:inline-block;background:rgba(255,255,255,0.08);padding:3px 8px;border-radius:10px;font-size:0.7rem;margin-right:4px;">${s}</span>`).join('')}</div>` : ''}<div class="history-actions"><button data-action="markCalmedById" data-id="${r.id}">标记平复</button><button data-action="deleteRecord" data-id="${r.id}">删除</button></div></div>`;
+}).join('');
+}
+function markCalmedById(id) {
+const records = getRecords().map(r => r.id === id ? {...r, calmed: true} : r);
+saveRecords(records); loadData();
+toast('已标记平复，做得好');
+}
+function deleteRecord(id) {
+if (!confirm('确定删除这条记录吗？')) return;
+const records = getRecords().filter(r => r.id !== id);
+saveRecords(records); loadData(); renderTriggerChart();
+toast('已删除');
+}
+function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+function renderChartTabs() {
+$('chartTabs').innerHTML = `<button class="tab active" data-action="switchChart" data-type="week">近7天</button><button class="tab" data-action="switchChart" data-type="month">近30天</button>`;
+}
+function switchChart(type, btn) {
+if (!isPro && type === 'month') { showPaywall(); return toast('30天趋势是 Pro 功能'); }
+document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+btn.classList.add('active');
+renderChart(type);
+}
+function renderChart(type) {
+const ctx = $('anxietyChart').getContext('2d');
+const records = getRecords();
+const days = type === 'week' ? 7 : 30;
+const labels = [], data = [];
+const now = new Date();
+for (let i = days - 1; i >= 0; i--) {
+const d = new Date(now); d.setDate(d.getDate() - i);
+labels.push(`${d.getMonth()+1}/${d.getDate()}`);
+const dayRecords = records.filter(r => { const rd = new Date(r.time); return rd.getFullYear() === d.getFullYear() && rd.getMonth() === d.getMonth() && rd.getDate() === d.getDate(); });
+data.push(dayRecords.length ? dayRecords.reduce((s, r) => s + r.intensity, 0) / dayRecords.length : null);
+}
+if (chartInstance) chartInstance.destroy();
+chartInstance = new Chart(ctx, {
+type: 'line',
+data: { labels, datasets: [{ label: '焦虑强度', data, borderColor: '#38bdf8', backgroundColor: (ctx) => { const {chart, chartArea} = ctx.chart; if (!chartArea) return null; const g = chart.ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom); g.addColorStop(0, 'rgba(56,189,248,0.4)'); g.addColorStop(1, 'rgba(56,189,248,0)'); return g; }, borderWidth: 3, pointRadius: 5, pointBackgroundColor: '#fff', pointBorderColor: '#38bdf8', fill: true, tension: 0.4, spanGaps: true }] },
+options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.5)' } }, x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } } }, plugins: { legend: { display: false } } }
+});
+}
+function renderTriggerChart() {
+const ctx = $('triggerChart').getContext('2d');
+const records = getRecords();
+const counts = {};
+records.forEach(r => r.triggers.forEach(t => counts[t] = (counts[t] || 0) + 1));
+const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 6);
+if (!sorted.length) { if (triggerChartInstance) triggerChartInstance.destroy(); return; }
+const labels = sorted.map(([t]) => t); const data = sorted.map(([_, v]) => v);
+const colors = ['#38bdf8', '#f43f5e', '#fbbf24', '#34d399', '#a78bfa', '#f472b6'];
+if (triggerChartInstance) triggerChartInstance.destroy();
+triggerChartInstance = new Chart(ctx, {
+type: 'bar',
+data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 8, borderWidth: 0 }] },
+options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.5)' } }, x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } } }, plugins: { legend: { display: false } } }
+});
+}
+function showPaywall() { $('paywall').scrollIntoView({ behavior: 'smooth' }); }
+function selectPlan(plan) {
+selectedPlan = plan;
+event.currentTarget.classList.add('selected');
+document.querySelectorAll('.price-box').forEach(b => { if (b !== event.currentTarget) b.classList.remove('selected'); });
+}
+function upgrade() {
+if (!localStorage.getItem('anxiety_trial_start')) {
+localStorage.setItem('anxiety_trial_start', Date.now());
+localStorage.setItem('anxiety_pro', '1');
+toast('已开启 7 天 Pro 试用');
+setTimeout(() => location.reload(), 1200);
+} else {
+toast(`支付开发中：${selectedPlan === 'month' ? '¥9.9/月' : '¥69/年'}`);
+}
+}
+function openModal(id) { $(id).classList.add('show'); }
+function closeModal(id) { $(id).classList.remove('show'); }
+function openSOS() { openModal('sosModal'); }
+function openHotlines() { openModal('hotlineModal'); }
+function openGrounding() { openModal('groundingModal'); }
+function openCBT() { openModal('cbtModal'); }
+function openDump() { openModal('dumpModal'); }
+function openPMR() { openModal('pmrModal'); }
+function openSleep() { openModal('sleepModal'); }
+function openPrevention() { openModal('preventionModal'); }
+function openBreathing() { openModal('breathingModal'); }
+function startBreathing() {
+const circle = $('breathCircle'); const text = $('breathText'); const sub = $('breathSub'); const btn = $('breathStartBtn');
+btn.classList.add('hidden');
+let cycles = 0; const maxCycles = 3;
+function cycle() {
+if (cycles >= maxCycles) { text.textContent = '完成'; sub.textContent = '你已经完成了 3 轮呼吸，感觉怎么样？'; btn.textContent = '再来 3 轮'; btn.classList.remove('hidden'); circle.className = 'breath-circle'; return; }
+text.textContent = '吸气 4 秒'; sub.textContent = '用鼻子慢慢吸气，腹部鼓起'; circle.className = 'breath-circle inhale';
+breathTimer = setTimeout(() => {
+text.textContent = '屏息 7 秒'; sub.textContent = '保持自然，不要憋气'; circle.className = 'breath-circle hold';
+breathTimer = setTimeout(() => {
+text.textContent = '呼气 8 秒'; sub.textContent = '用嘴巴缓慢呼气，肩膀放松'; circle.className = 'breath-circle exhale';
+breathTimer = setTimeout(() => { cycles++; cycle(); }, 8000);
+}, 7000);
+}, 4000);
+}
+cycle();
+}
+function stopBreathing() { clearTimeout(breathTimer); }
+function startPMR() {
+const btn = $('pmrBtn');
+btn.classList.add('hidden');
+pmrIndex = 0;
+runPMRStep();
+}
+function runPMRStep() {
+if (pmrIndex >= PMR_STEPS.length) { finishPMR(); return; }
+const step = PMR_STEPS[pmrIndex];
+const progress = ((pmrIndex + 1) / PMR_STEPS.length) * 100;
+$('pmrProgress').style.width = `${progress}%`;
+$('pmrStepCount').textContent = `${pmrIndex + 1} / ${PMR_STEPS.length}`;
+$('pmrCircle').textContent = step.name;
+$('pmrText').textContent = `绷紧：${step.tense}`;
+$('pmrSub').textContent = '保持 5 秒';
+pmrTimer = setTimeout(() => {
+$('pmrText').textContent = `放松：${step.relax}`;
+$('pmrSub').textContent = '停留 10 秒';
+pmrTimer = setTimeout(() => { pmrIndex++; runPMRStep(); }, 10000);
+}, 5000);
+}
+function finishPMR() {
+$('pmrCircle').textContent = '完成';
+$('pmrText').textContent = '全身已经放松';
+$('pmrSub').textContent = '你现在感觉怎么样？';
+$('pmrBtn').textContent = '再来一次';
+$('pmrBtn').classList.remove('hidden');
+markCalmed('pmr');
+}
+function stopPMR() { clearTimeout(pmrTimer); }
+function toggleCheck(el) {
+const cb = el.querySelector('input');
+cb.checked = !cb.checked;
+el.classList.toggle('checked', cb.checked);
+}
+function startSleepBreathing() {
+$('sleepBreath').classList.remove('hidden');
+const circle = $('sleepCircle'); const text = $('sleepText'); const sub = $('sleepSub');
+let cycles = 0;
+function cycle() {
+if (cycles >= 5) { text.textContent = '完成'; sub.textContent = '慢慢睁开眼睛，祝你好眠'; circle.className = 'breath-circle'; return; }
+text.textContent = '吸气 4 秒'; sub.textContent = '慢慢吸气'; circle.className = 'breath-circle inhale';
+sleepTimer = setTimeout(() => {
+text.textContent = '呼气 6 秒'; sub.textContent = '更慢地呼气'; circle.className = 'breath-circle exhale';
+sleepTimer = setTimeout(() => { cycles++; cycle(); }, 6000);
+}, 4000);
+}
+cycle();
+}
+function markCalmed(tool) {
+const records = getRecords();
+if (records.length > 0) { records[0].calmed = true; if (tool) records[0].tools.push(tool); saveRecords(records); loadData(); }
+toast('标记平复成功，你很棒');
+closeModal('groundingModal');
+}
+function saveCBT() {
+const thought = $('cbtThought').value.trim();
+const probability = $('cbtProbability').value.trim();
+const advice = $('cbtAdvice').value.trim();
+const balance = $('cbtBalance').value.trim();
+if (!thought) return toast('请至少写下最担心的想法');
+if (checkCrisis(thought)) { openHotlines(); toast('检测到你的想法可能涉及危机，请查看求助热线'); return; }
+const records = getRecords();
+if (records.length > 0) { records[0].tools.push('cbt'); records[0].cbt = { thought, probability, advice, balance }; saveRecords(records); }
+$('cbtThought').value = ''; $('cbtProbability').value = ''; $('cbtAdvice').value = ''; $('cbtBalance').value = '';
+toast('认知重构已保存'); closeModal('cbtModal');
+}
+function emptyDump() { $('dumpText').value = ''; toast('已经倒空了'); closeModal('dumpModal'); }
+function saveDump() {
+const text = $('dumpText').value.trim();
+if (!text) return toast('还没有内容');
+if (checkCrisis(text)) { openHotlines(); toast('检测到你的文字可能涉及危机，请查看求助热线'); return; }
+if (!isPro && getRecords().length >= 7) { showPaywall(); return toast('免费版记录上限 7 条'); }
+const record = { id: Date.now(), intensity: 5, symptoms: [], triggers: [], note: text, time: Date.now(), tools: ['dump'], calmed: true };
+const records = getRecords(); records.unshift(record); saveRecords(records); $('dumpText').value = ''; loadData(); renderTriggerChart();
+toast('情绪倾倒已保存'); closeModal('dumpModal');
+}
+function exportPDF() {
+if (!isPro) { showPaywall(); return toast('导出 PDF 是 Pro 功能'); }
+const records = getRecords();
+if (!records.length) return toast('没有数据');
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+doc.setFontSize(18); doc.text('焦虑急救箱 - 发作报告', 14, 20);
+doc.setFontSize(12); doc.text(`生成时间：${new Date().toLocaleString('zh-CN')}`, 14, 30);
+doc.text(`累计发作：${records.length} 次 | 平均强度：${(records.reduce((s,r)=>s+r.intensity,0)/records.length).toFixed(1)}/10`, 14, 40);
+let y = 55;
+records.slice(0, 20).forEach(r => {
+const date = new Date(r.time).toLocaleString('zh-CN');
+doc.text(`${date}  | 强度 ${r.intensity}/10`, 14, y); y += 7;
+if (r.symptoms.length) { doc.text(`症状：${r.symptoms.join('、')}`, 14, y); y += 7; }
+if (r.triggers.length) { doc.text(`诱因：${r.triggers.join('、')}`, 14, y); y += 7; }
+if (r.note) { const lines = doc.splitTextToSize(r.note, 180); doc.text(lines, 14, y); y += lines.length * 6 + 4; }
+y += 4;
+if (y > 270) { doc.addPage(); y = 20; }
+});
+doc.save('焦虑急救箱报告.pdf');
+toast('PDF 已导出');
+}
+function exportJSON() {
+const records = getRecords();
+if (!records.length) return toast('没有数据');
+const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a'); a.href = url; a.download = `anxiety-kit-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
+toast('已导出 JSON');
+}
+function resetData() {
+if (confirm('确定清空所有数据吗？')) {
+localStorage.removeItem('anxiety_records'); localStorage.removeItem('anxiety_pro'); localStorage.removeItem('anxiety_streak'); localStorage.removeItem('anxiety_last_record'); localStorage.removeItem('anxiety_trial_start');
+toast('数据已重置'); setTimeout(() => location.reload(), 1000);
+}
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
