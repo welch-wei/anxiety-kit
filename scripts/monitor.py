@@ -71,6 +71,8 @@ def get_bitable_records():
         paid_count = 0
         for item in items:
             fields = item.get('fields', {})
+            if not fields:
+                continue
             try:
                 amount = float(fields.get('金额', 0))
             except:
@@ -81,7 +83,7 @@ def get_bitable_records():
                 pending += 1
             elif status == '已发放':
                 paid_count += 1
-        return len(items), total_amount, pending, paid_count
+        return record_count, total_amount, pending, paid_count
     except Exception as e:
         return 0, 0.0, 0, 0
 
