@@ -115,4 +115,5 @@
 
 ## 更新日志
 
+- **2026-07-24**：中英双语版本上线；页面与 PDF 导出均支持语言切换；兑换码改为从 GitHub `codes.json` 自动同步；修复 `scripts/monitor.py` 订单统计变量错误；添加本地访问计数 + Cloudflare Web Analytics 接入位。
 - **2026-07-22**：新增 PMR、睡眠仪式、预防计划、危机评估、PDF 导出、Pro 7 天试用

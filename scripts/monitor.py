@@ -83,7 +83,7 @@ def get_bitable_records():
                 pending += 1
             elif status == '已发放':
                 paid_count += 1
-        return record_count, total_amount, pending, paid_count
+        return len(items), total_amount, pending, paid_count
     except Exception as e:
         return 0, 0.0, 0, 0
 
