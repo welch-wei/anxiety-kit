@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: radial-gradient(1200px 800px at 78% 50%, #10233f 0%, #0b1120 55%, #070b16 100%);
+    color: #e5e7eb; position: relative;
+  }
+  /* 星星点缀 */
+  .stars { position: absolute; inset: 0; }
+  .star { position: absolute; background: #7dd3fc; border-radius: 50%; opacity: .5; }
+  /* 右侧呼吸圆 */
+  .breath-wrap { position: absolute; right: 90px; top: 50%; transform: translateY(-50%); width: 420px; height: 420px; }
+  .ring { position: absolute; border-radius: 50%; border: 1.5px solid rgba(56,189,248,.28); }
+  .r1 { inset: 0; }
+  .r2 { inset: 46px; border-color: rgba(56,189,248,.4); }
+  .r3 { inset: 92px; border-color: rgba(56,189,248,.55); }
+  .core {
+    position: absolute; inset: 138px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #7dd3fc 0%, #38bdf8 35%, #0ea5e9 70%, #0369a1 100%);
+    box-shadow: 0 0 60px rgba(56,189,248,.55), 0 0 140px rgba(14,165,233,.35);
+  }
+  .core-inner {
+    position: absolute; inset: 168px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, rgba(255,255,255,.85), rgba(186,230,253,.25) 60%, transparent 75%);
+  }
+  .breath-label {
+    position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+    text-align: center; color: #082f49; font-weight: 900; font-size: 20px; letter-spacing: 2px;
+  }
+  /* 左侧文案 */
+  .content { position: absolute; left: 80px; top: 50%; transform: translateY(-50%); width: 640px; }
+  .eyebrow {
+    color: #38bdf8; font-size: 16px; letter-spacing: 6px; font-weight: 700; margin-bottom: 18px;
+  }
+  h1 {
+    font-size: 84px; font-weight: 900; color: #f8fafc; letter-spacing: 4px; line-height: 1.1;
+    text-shadow: 0 0 40px rgba(56,189,248,.25);
+  }
+  .tagline {
+    margin-top: 16px; font-size: 30px; color: #bae6fd; font-weight: 500; letter-spacing: 2px;
+  }
+  .chips { margin-top: 38px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .chip {
+    background: rgba(14,165,233,.12); border: 1px solid rgba(56,189,248,.35);
+    color: #7dd3fc; padding: 10px 18px; border-radius: 999px; font-size: 19px; font-weight: 600;
+  }
+  .url {
+    position: absolute; left: 80px; bottom: 44px; color: #475569; font-size: 17px; letter-spacing: 1px;
+  }
+  .badge-free {
+    position: absolute; right: 80px; bottom: 38px; color: #64748b; font-size: 16px;
+    border: 1px solid #334155; padding: 8px 16px; border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+
+  <div class="content">
+    <div class="eyebrow">ANXIETY FIRST AID KIT</div>
+    <h1>焦虑急救箱</h1>
+    <div class="tagline">60 秒，让自己回来</div>
+    <div class="chips">
+      <span class="chip">🫁 4-7-8 呼吸</span>
+      <span class="chip">🧊 54321 接地</span>
+      <span class="chip">💭 认知重构</span>
+      <span class="chip">🧘 肌肉放松</span>
+    </div>
+  </div>
+
+  <div class="breath-wrap">
+    <div class="ring r1"></div>
+    <div class="ring r2"></div>
+    <div class="ring r3"></div>
+    <div class="core"></div>
+    <div class="core-inner"></div>
+    <div class="breath-label">吸 · 呼</div>
+  </div>
+
+  <div class="url">welch-wei.github.io/anxiety-kit</div>
+  <div class="badge-free">免费使用 · 无需注册 · 数据仅存本地</div>
+
+<script>
+  // 随机生成星星（确定性种子，保证每次截图一致）
+  const seed = [12,87,34,56,23,78,45,91,67,29,83,15,49,72,38,64,95,21,58,41];
+  const wrap = document.getElementById('stars');
+  for (let i = 0; i < 40; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const x = (seed[i % 20] * 13 + i * 97) % 1200;
+    const y = (seed[i % 20] * 29 + i * 61) % 630;
+    const size = 1 + (i % 3);
+    s.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;opacity:${0.15 + (i % 5) * 0.1}`;
+    wrap.appendChild(s);
+  }
+</script>
+</body>
+</html>
