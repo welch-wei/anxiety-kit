@@ -430,9 +430,12 @@ localStorage.removeItem('anxiety_records'); localStorage.removeItem('anxiety_pro
 toast(t('toast_data_reset')); setTimeout(() => location.reload(), 1000);
 }
 }
-// Afdian checkout + redeem code logic
+// Alipay QR + redeem code logic
 function showAlipay() {
-  window.open('https://ifdian.net/a/welch2513', '_blank');
+  const panel = $('qrPanel');
+  if (!panel) return;
+  panel.classList.toggle('hidden');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function redeemCode() {

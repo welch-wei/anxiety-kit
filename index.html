@@ -283,13 +283,19 @@ header { position: relative; }
 </ul>
 
 <div class="pay-section" id="paySection">
-  <a class="btn btn-gold btn-link" href="https://ifdian.net/a/welch2513" target="_blank" rel="noopener">❤️ 去爱发电升级 Pro</a>
-  <p class="afdian-sub">在爱发电支持 ¥9.9/月，即可在「仅发电用户可见」的置顶动态中获取兑换码</p>
+  <button class="btn btn-gold" data-action="showAlipay">支付宝扫码升级</button>
+  <div class="qr-panel hidden" id="qrPanel">
+    <p class="qr-title">扫码支付 ¥9.9/月，备注填 ANXIETY</p>
+    <div class="qr-box">
+      <img src="assets/alipay-qr.jpg" alt="支付宝收款码" class="qr-img" id="qrImg">
+    </div>
+    <p class="qr-sub">付款后加微信 welch-wei 发付款截图，1 分钟内发你兑换码</p>
+  </div>
   <div class="redeem-panel" id="redeemPanel">
     <p class="redeem-title">已有兑换码？</p>
     <input type="text" class="redeem-input" id="redeemInput" placeholder="输入 8 位兑换码">
     <button class="btn btn-secondary" data-action="redeemCode">立即兑换 Pro</button>
-    <p class="redeem-help">发电后在置顶动态领取兑换码 · 7 天不满意无条件退款</p>
+    <p class="redeem-help">付款后微信领取兑换码 · 7 天不满意无条件退款</p>
   </div>
 </div>
 </div>
