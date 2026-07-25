@@ -277,12 +277,6 @@ function selectPlan(el) {
 selectedPlan = el.dataset.plan;
 el.classList.add('selected');
 document.querySelectorAll('.price-box').forEach(b => { if (b !== el) b.classList.remove('selected'); });
-// 同步更新二维码价格
-if (!document.getElementById('qrPanel').classList.contains('hidden')) {
-  document.getElementById('qrPrice').textContent = selectedPlan === 'year' ? '69' : '9.9';
-  document.getElementById('qrPlan').textContent = selectedPlan === 'year' ? t('qr_year') : t('qr_month');
-  document.getElementById('payMemo').textContent = selectedPlan === 'year' ? t('memo_year') : t('memo_month');
-}
 }
 function upgrade() {
 if (!localStorage.getItem('anxiety_trial_start')) {
@@ -436,17 +430,9 @@ localStorage.removeItem('anxiety_records'); localStorage.removeItem('anxiety_pro
 toast(t('toast_data_reset')); setTimeout(() => location.reload(), 1000);
 }
 }
-// Alipay QR + redeem code logic
+// Afdian checkout + redeem code logic
 function showAlipay() {
-  const panel = document.getElementById('qrPanel');
-  if (!panel) return;
-  panel.classList.remove('hidden');
-  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  const selected = document.querySelector('.price-box.selected');
-  const plan = selected ? selected.dataset.plan : 'month';
-  document.getElementById('qrPrice').textContent = plan === 'year' ? '69' : '9.9';
-  document.getElementById('qrPlan').textContent = plan === 'year' ? t('qr_year') : t('qr_month');
-  document.getElementById('payMemo').textContent = plan === 'year' ? t('memo_year') : t('memo_month');
+  window.open('https://ifdian.net/a/welch2513', '_blank');
 }
 
 function redeemCode() {

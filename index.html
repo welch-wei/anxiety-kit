@@ -183,6 +183,9 @@ textarea:focus { outline: none; border-color: var(--primary-light); }
 .redeem-help { margin-top: 10px; font-size: 0.75rem; color: var(--text-tertiary); }
 .redeem-help strong { color: var(--primary-light); }
 .paywall .btn-secondary { margin-top: 0; }
+a.btn-link { display: block; text-decoration: none; }
+.afdian-sub { margin-top: 12px; font-size: 0.8rem; color: var(--text-secondary); }
+.trust-line { margin-top: 10px; font-size: 0.75rem; color: var(--text-tertiary); line-height: 1.6; }
 header { position: relative; }
 .lang-switch { position: absolute; top: 0; right: 0; display: flex; gap: 6px; z-index: 10; }
 .lang-switch button { background: var(--surface); border: 1px solid var(--card-border); color: var(--text-secondary); padding: 5px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
@@ -280,21 +283,13 @@ header { position: relative; }
 </ul>
 
 <div class="pay-section" id="paySection">
-  <button class="btn btn-gold" data-action="showAlipay">支付宝扫码升级</button>
-  <div class="qr-panel hidden" id="qrPanel">
-    <p class="qr-title">截图后打开支付宝扫一扫</p>
-    <div class="qr-box">
-      <img src="assets/alipay-qr.jpg" alt="支付宝收款码" class="qr-img" id="qrImg">
-      <div class="qr-fallback">若二维码未显示，请截图后联系客服</div>
-    </div>
-    <p class="qr-tip">¥<span id="qrPrice">9.9</span> <span id="qrPlan">月卡</span></p>
-    <p class="qr-sub">支付备注请填写：<strong id="payMemo">焦虑急救箱</strong></p>
-  </div>
+  <a class="btn btn-gold btn-link" href="https://ifdian.net/a/welch2513" target="_blank" rel="noopener">❤️ 去爱发电升级 Pro</a>
+  <p class="afdian-sub">在爱发电支持 ¥9.9/月，即可在「仅发电用户可见」的置顶动态中获取兑换码</p>
   <div class="redeem-panel" id="redeemPanel">
     <p class="redeem-title">已有兑换码？</p>
     <input type="text" class="redeem-input" id="redeemInput" placeholder="输入 8 位兑换码">
     <button class="btn btn-secondary" data-action="redeemCode">立即兑换 Pro</button>
-    <p class="redeem-help">支付成功后请加微信 <strong id="contactWechat">welch-wei</strong> 领取兑换码</p>
+    <p class="redeem-help">发电后在置顶动态领取兑换码 · 7 天不满意无条件退款</p>
   </div>
 </div>
 </div>
@@ -319,6 +314,7 @@ header { position: relative; }
 
 <footer>
 <p>焦虑急救箱 · 紧急情况请拨打 120 或前往医院</p>
+<p class="trust-line">作者 Welch · 方法基于 CBT / 4-7-8 呼吸 / 正念减压（MBSR）· 数据仅存本机，不上传服务器</p>
 <p style="margin-top:8px;"><a href="#" data-action="resetData">重置本地数据</a> · <a href="#" data-action="openHotlines">求助热线</a> · <a href="#" data-action="exportJSON">导出数据</a></p>
 </footer>
 </div>
