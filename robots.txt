@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://welch-wei.github.io/anxiety-kit/sitemap.xml
